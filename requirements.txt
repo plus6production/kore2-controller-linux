@@ -1,0 +1,5 @@
+libusb1
+pillow
+python-osc
+numpy
+tkvue

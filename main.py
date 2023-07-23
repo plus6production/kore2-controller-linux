@@ -1,32 +1,31 @@
-import usb1
-import threading
 import signal
 from PIL import Image, ImageEnhance, ImageDraw, ImageFont, GifImagePlugin
-from pythonosc import udp_client
-import numpy
 import time
 import json
-import asyncio
 
 from kore_2_controller.kore_2_controller import Kore2Controller
+from bitwig_osc import BitwigOsc
 
 def main():
     controller = Kore2Controller()
     controller.initialize()
 
-    converted_frames = []
-    imageObject = Image.open('img/test_waveform.gif')
-    for frame in range(0, imageObject.n_frames):
-        imageObject.seek(frame)
-        temp = imageObject.resize((128, 128))
-        temp1 = temp.crop((0, 32, 128, 96))
-        temp2 = temp1.convert('1')
-        converted_frames.append(temp2)
+    bitwig = BitwigOsc(controller.handle_incoming_events)
+    bitwig.connect()
 
-    while True:
-        for frame in converted_frames:
-            controller.display.write_buffer_to_display(frame, False)
-            time.sleep(0.1)
+    # converted_frames = []
+    # imageObject = Image.open('img/test_waveform.gif')
+    # for frame in range(0, imageObject.n_frames):
+    #     imageObject.seek(frame)
+    #     temp = imageObject.resize((128, 128))
+    #     temp1 = temp.crop((0, 32, 128, 96))
+    #     temp2 = temp1.convert('1')
+    #     converted_frames.append(temp2)
+
+    # while True:
+    #     for frame in converted_frames:
+    #         controller.display.write_buffer_to_display(frame, False)
+    #         time.sleep(0.1)
 
     # Generate image for screen using PIL
 
@@ -58,6 +57,7 @@ def main():
     while should_send > 0:
         should_send = int(input("1 to wait more, 0 to exit: "))
 
+    bitwig.disconnect()
     controller.shutdown()
     print("END OF LINE")
     return

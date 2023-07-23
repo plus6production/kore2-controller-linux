@@ -34,5 +34,15 @@ class Kore2Controller:
 
     def setup_callbacks(self):
         self.usb_handler.set_io_message_callback(self.io.handle_read_io)
-        for btn in self.io.buttons:
-            self.io.buttons[btn]['on_change'] = self.default_button_callback
+        # for btn in self.io.buttons:
+        #     self.io.buttons[btn]['on_change'] = self.default_button_callback
+
+    def handle_incoming_events(self, event):
+        print("handle incoming")
+        if event['context'] == 'track' and event['name'] == 'mute':
+            if event['track'] != 'selected' and event['track'] != 'global':
+                btn_name = 'BTN_' + str(event['track'])
+                val = 0
+                if event['args'][0]:
+                    val = self.leds.MAX_LED_BRIGHTNESS
+                self.leds.set_single_led(btn_name, val)

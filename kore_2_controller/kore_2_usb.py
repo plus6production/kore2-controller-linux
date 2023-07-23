@@ -111,8 +111,8 @@ class Kore2USB:
         utils.print_if_debug(self.debug, "Kore2USB.close(): enter")
         self.shutdown_event.set()
         utils.print_if_debug(self.debug, "Kore2USB.close(): shutdown sent")
-        if self.read_thread:
-            self.read_thread.join()
+        self.thread_pool.close()
+        self.thread_pool.join()
         if self.usb_handle:
             self.usb_handle.releaseInterface(0)
             self.usb_handle.close()

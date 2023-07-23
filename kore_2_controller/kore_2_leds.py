@@ -40,6 +40,7 @@ class Kore2Leds:
     def __init__(self, usb_handler, debug=False):
         self.debug = debug
         self.usb_handler = usb_handler
+        self.MAX_LED_BRIGHTNESS = 63
         self.led_map = {
             'F2' :      { 'index' : 28, 'brightness' : 0 },
             'CONTROL' : { 'index' : 26, 'brightness' : 0 },

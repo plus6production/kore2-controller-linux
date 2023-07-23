@@ -1,0 +1,788 @@
+{
+    "from_bitwig": {
+        "update": {
+            "_type": "bool"
+        },
+        "crossfade": {
+            "_type": "int",
+            "_min": 0,
+            "_max": 1024
+        },
+        "play": {
+            "_type": "bool"
+        },
+        "record": {
+            "_type": "bool"
+        },
+        "click": {
+            "_type": "bool",
+            "volume": {
+                "_type": "int",
+                "_min": 0,
+                "_max": 1024
+            },
+            "volumeStr": {
+                "_type": "str"
+            }
+        },
+        "time": {
+            "str": {
+                "_type": "str"
+            }
+        },
+        "beat": {
+            "str": {
+                "_type": "str"
+            }
+        },
+        "tempo": {
+            "raw": {
+                "_type": "int",
+                "_min": 0,
+                "_max": 666
+            }
+        },
+        "layout": {
+            "_type": "str"
+        },
+        "track": {
+            "toggleBank": {
+                "_type": "bool"
+            },
+            "hasParent": {
+                "_type": "bool"
+            },
+            "*8": {
+                "name": {
+                    "_type": "str"
+                },
+                "isGroup": {
+                    "_type": "bool"
+                },
+                "activated": {
+                    "_type": "bool"
+                },
+                "exists": {
+                    "_type": "bool"
+                },
+                "canHoldNotes": {
+                    "_type": "bool"
+                },
+                "canHoldAudioData": {
+                    "_type": "bool"
+                },
+                "position": {
+                    "_type": "int"
+                },
+                "selected": {
+                    "_type": "bool"
+                },
+                "volume": {
+                    "_type": "int",
+                    "_min": 0,
+                    "_max": 1024
+                },
+                "volumeStr": {
+                    "_type": "str"
+                },
+                "pan": {
+                    "_type": "int",
+                    "_min": 0,
+                    "_max": 1024
+                },
+                "panStr": {
+                    "_type": "str"
+                },
+                "mute": {
+                    "_type": "bool"
+                },
+                "solo": {
+                    "_type": "bool"
+                },
+                "recarm": {
+                    "_type": "bool"
+                },
+                "monitor": {
+                    "_type": "bool"
+                },
+                "autoMonitor": {
+                    "_type": "bool"
+                },
+                "vu": {
+                    "_type": "int",
+                    "_min": 0,
+                    "_max": 1024
+                },
+                "clip": {
+                    "*8": {
+                        "name": {
+                            "_type": "str"
+                        },
+                        "isSelected": {
+                            "_type": "bool"
+                        },
+                        "hasContent": {
+                            "_type": "bool"
+                        },
+                        "isPlaying": {
+                            "_type": "bool"
+                        },
+                        "isRecording": {
+                            "_type": "bool"
+                        },
+                        "isPlayingQueued": {
+                            "_type": "bool"
+                        },
+                        "isStopQueued": {
+                            "_type": "bool"
+                        },
+                        "isRecordingQueued": {
+                            "_type": "bool"
+                        }
+                    },
+                    "exists": {
+                        "_type": "bool"
+                    },
+                    "pinned": {
+                        "_type": "bool"
+                    }
+                }
+            },
+            "selected": {
+                "pinned": {
+                    "_type": "bool"
+                },
+                "name": {
+                    "_type": "str"
+                },
+                "isGroup": {
+                    "_type": "bool"
+                },
+                "activated": {
+                    "_type": "bool"
+                },
+                "exists": {
+                    "_type": "bool"
+                },
+                "canHoldNotes": {
+                    "_type": "bool"
+                },
+                "canHoldAudioData": {
+                    "_type": "bool"
+                },
+                "position": {
+                    "_type": "int"
+                },
+                "selected": {
+                    "_type": "bool"
+                },
+                "volume": {
+                    "_type": "int",
+                    "_min": 0,
+                    "_max": 1024
+                },
+                "volumeStr": {
+                    "_type": "str"
+                },
+                "pan": {
+                    "_type": "int",
+                    "_min": 0,
+                    "_max": 1024
+                },
+                "panStr": {
+                    "_type": "str"
+                },
+                "mute": {
+                    "_type": "bool"
+                },
+                "solo": {
+                    "_type": "bool"
+                },
+                "recarm": {
+                    "_type": "bool"
+                },
+                "monitor": {
+                    "_type": "bool"
+                },
+                "autoMonitor": {
+                    "_type": "bool"
+                },
+                "vu": {
+                    "_type": "int",
+                    "_min": 0,
+                    "_max": 1024
+                }
+            }
+        },
+        "master": {
+            "name": {
+                "_type": "str"
+            },
+            "isGroup": {
+                "_type": "bool"
+            },
+            "activated": {
+                "_type": "bool"
+            },
+            "exists": {
+                "_type": "bool"
+            },
+            "canHoldNotes": {
+                "_type": "bool"
+            },
+            "canHoldAudioData": {
+                "_type": "bool"
+            },
+            "position": {
+                "_type": "int"
+            },
+            "selected": {
+                "_type": "bool"
+            },
+            "volume": {
+                "_type": "int",
+                "_min": 0,
+                "_max": 1024
+            },
+            "volumeStr": {
+                "_type": "str"
+            },
+            "pan": {
+                "_type": "int",
+                "_min": 0,
+                "_max": 1024
+            },
+            "panStr": {
+                "_type": "str"
+            },
+            "mute": {
+                "_type": "bool"
+            },
+            "solo": {
+                "_type": "bool"
+            },
+            "recarm": {
+                "_type": "bool"
+            },
+            "monitor": {
+                "_type": "bool"
+            },
+            "autoMonitor": {
+                "_type": "bool"
+            },
+            "vu": {
+                "_type": "int",
+                "_min": 0,
+                "_max": 1024
+            }
+        },
+        "scene": {
+            "*8": {
+                "exists": {
+                    "_type": "bool"
+                },
+                "name": {
+                    "_type": "str"
+                },
+                "selected": {
+                    "_type": "bool"
+                }
+            }
+        },
+        "browser": {
+            "isActive": {
+                "_type": "bool"
+            },
+            "tab": {
+                "_type": "str"
+            },
+            "filter": {
+                "*6": {
+                    "wildcard": {
+                        "_type": "str"
+                    },
+                    "exists": {
+                        "_type": "bool"
+                    },
+                    "name": {
+                        "_type": "str"
+                    },
+                    "item": {
+                        "*16": {
+                            "exists": {
+                                "_type": "bool"
+                            },
+                            "name": {
+                                "_type": "str"
+                            },
+                            "hits": {
+                                "_type": "int"
+                            },
+                            "isSelected": {
+                                "_type": "bool"
+                            }
+                        }
+                    }
+                }
+            },
+            "result": {
+                "*16": {
+                    "exists": {
+                        "_type": "bool"
+                    },
+                    "name": {
+                        "_type": "str"
+                    },
+                    "isSelected": {
+                        "_type": "bool"
+                    }
+                }
+            }
+        }
+    },
+    "to_bitwig": {
+        "refresh": {
+            "_type": "none"
+        },
+        "undo": {
+            "_type": "none"
+        },
+        "redo": {
+            "_type": "none"
+        },
+        "action": {
+            "_type": "int",
+            "_min": 0,
+            "_max": 20
+        },
+        "project": {
+            "save": {
+                "_type": "none"
+            }
+        },
+        "stop": {
+            "_type": "none"
+        },
+        "play": {
+            "_type": "none"
+        },
+        "playbutton": {
+            "_type": "none"
+        },
+        "restart": {
+            "_type": "none"
+        },
+        "record": {
+            "_type": "none"
+        },
+        "repeat": {
+            "_type": "none"
+        },
+        "click": {
+            "_type": "none",
+            "volume": {
+                "_type": "int",
+                "_min": 0,
+                "_max": 1024
+            }
+        },
+        "tempo": {
+            "raw": {
+                "_type": "int",
+                "_min": 0,
+                "_max": 666
+            },
+            "tap": {
+                "_type": "none"
+            },
+            "+": {
+                "_type": "none"
+            },
+            "-": {
+                "_type": "none"
+            }
+        },
+        "time": {
+            "_type": "int"
+        },
+        "position": {
+            "+": {
+                "_type": "none"
+            },
+            "-": {
+                "_type": "none"
+            },
+            "++": {
+                "_type": "none"
+            },
+            "--": {
+                "_type": "none"
+            }
+        },
+        "launcher": {
+            "defaultQuantization": {
+                "_type": "str"
+            }
+        },
+        "track": {
+            "bank": {
+                "+": {
+                    "_type": "none"
+                },
+                "-": {
+                    "_type": "none"
+                },
+                "page": {
+                    "+": {
+                        "_type": "none"
+                    },
+                    "-": {
+                        "_type": "none"
+                    }
+                }
+            },
+            "+": {
+                "_type": "none"
+            },
+            "-": {
+                "_type": "none"
+            },
+            "add": {
+                "audio": {
+                    "_type": "none"
+                },
+                "effect": {
+                    "_type": "none"
+                },
+                "instrument": {
+                    "_type": "none"
+                }
+            },
+            "toggleBank": {
+                "_type": "none"
+            },
+            "stop": {
+                "_type": "none"
+            },
+            "stopAlt": {
+                "_type": "none"
+            },
+            "parent": {
+                "_type": "none"
+            },
+            "*8": {
+                "activated": {
+                    "_type": "none"
+                },
+                "select": {
+                    "_type": "none"
+                },
+                "duplicate": {
+                    "_type": "none"
+                },
+                "remove": {
+                    "_type": "none"
+                },
+                "volume": {
+                    "_type": "int",
+                    "_min": 0,
+                    "_max": 1024,
+                    "reset": {
+                        "_type": "none"
+                    },
+                    "touched": {
+                        "_type": "bool"
+                    }
+                },
+                "pan": {
+                    "_type": "int",
+                    "_min": 0,
+                    "_max": 1024,
+                    "reset": {
+                        "_type": "none"
+                    },
+                    "touched": {
+                        "_type": "bool"
+                    }
+                },
+                "mute": {
+                    "_type": "none"
+                },
+                "solo": {
+                    "_type": "none"
+                },
+                "recarm": {
+                    "_type": "none"
+                },
+                "monitor": {
+                    "_type": "none"
+                },
+                "autoMonitor": {
+                    "_type": "none"
+                },
+                "enter": {
+                    "_type": "none"
+                },
+                "clip": {
+                    "*8": {
+                        "select": {
+                            "_type": "none"
+                        },
+                        "launc": {
+                            "_type": "bool"
+                        },
+                        "launchAlt": {
+                            "_type": "bool"
+                        },
+                        "record": {
+                            "_type": "none"
+                        },
+                        "create": {
+                            "_type": "int"
+                        },
+                        "duplicate": {
+                            "_type": "none"
+                        },
+                        "remove": {
+                            "_type": "none"
+                        }
+                    },
+                    "stop": {
+                        "_type": "none"
+                    }
+                }
+            },
+            "selected": {
+                "pinned": {
+                    "_type": "none"
+                },
+                "activated": {
+                    "_type": "none"
+                },
+                "select": {
+                    "_type": "none"
+                },
+                "duplicate": {
+                    "_type": "none"
+                },
+                "remove": {
+                    "_type": "none"
+                },
+                "volume": {
+                    "_type": "int",
+                    "_min": 0,
+                    "_max": 1024,
+                    "reset": {
+                        "_type": "none"
+                    },
+                    "touched": {
+                        "_type": "bool"
+                    }
+                },
+                "pan": {
+                    "_type": "int",
+                    "_min": 0,
+                    "_max": 1024,
+                    "reset": {
+                        "_type": "none"
+                    },
+                    "touched": {
+                        "_type": "bool"
+                    }
+                },
+                "mute": {
+                    "_type": "none"
+                },
+                "solo": {
+                    "_type": "none"
+                },
+                "recarm": {
+                    "_type": "none"
+                },
+                "monitor": {
+                    "_type": "none"
+                },
+                "autoMonitor": {
+                    "_type": "none"
+                },
+                "enter": {
+                    "_type": "none"
+                }
+            }
+        },
+        "master": {
+            "activated": {
+                "_type": "none"
+            },
+            "select": {
+                "_type": "none"
+            },
+            "duplicate": {
+                "_type": "none"
+            },
+            "remove": {
+                "_type": "none"
+            },
+            "volume": {
+                "_type": "int",
+                "_min": 0,
+                "_max": 1024,
+                "reset": {
+                    "_type": "none"
+                },
+                "touched": {
+                    "_type": "bool"
+                }
+            },
+            "pan": {
+                "_type": "int",
+                "_min": 0,
+                "_max": 1024,
+                "reset": {
+                    "_type": "none"
+                },
+                "touched": {
+                    "_type": "bool"
+                }
+            },
+            "mute": {
+                "_type": "none"
+            },
+            "solo": {
+                "_type": "none"
+            },
+            "recarm": {
+                "_type": "none"
+            },
+            "monitor": {
+                "_type": "none"
+            },
+            "autoMonitor": {
+                "_type": "none"
+            },
+            "enter": {
+                "_type": "none"
+            }
+        },
+        "scene": {
+            "+": {
+                "_type": "none"
+            },
+            "-": {
+                "_type": "none"
+            },
+            "bank": {
+                "+": {
+                    "_type": "none"
+                },
+                "-": {
+                    "_type": "none"
+                }
+            },
+            "create": {
+                "_type": "none"
+            },
+            "add": {
+                "_type": "none"
+            },
+            "*8": {
+                "launch": {
+                    "_type": "bool"
+                },
+                "launchAlt": {
+                    "_type": "bool"
+                },
+                "duplicate": {
+                    "_type": "none"
+                },
+                "remove": {
+                    "_type": "none"
+                }
+            }
+        },
+        "clip": {
+            "pinned": {
+                "_type": "none"
+            },
+            "+": {
+                "_type": "none"
+            },
+            "-": {
+                "_type": "none"
+            },
+            "launch": {
+                "_type": "bool"
+            },
+            "launchAlt": {
+                "_type": "bool"
+            },
+            "stop": {
+                "_type": "none"
+            },
+            "stopall": {
+                "_type": "none"
+            },
+            "stopallAlt": {
+                "_type": "none"
+            },
+            "record": {
+                "_type": "none"
+            },
+            "create": {
+                "_type": "none"
+            },
+            "quantize": {
+                "_type": "none"
+            }
+        },
+        "browser": {
+            "preset" : {
+                "_type": "none"
+            },
+            "device" : {
+                "_type": "none",
+                "after": {
+                    "_type": "none"
+                },
+                "before": {
+                    "_type": "none"
+                }
+            },
+            "commit": {
+                "_type": "none"
+            },
+            "cancel": {
+                "_type": "none"
+            },
+            "filter": {
+                "*6": {
+                    "+": {
+                        "_type": "none"
+                    },
+                    "-": {
+                        "_type": "none"
+                    },
+                    "reset": {
+                        "_type": "none"
+                    }
+                }
+            },
+            "result": {
+                "+": {
+                    "_type": "none"
+                },
+                "-": {
+                    "_type": "none"
+                }
+            },
+            "tab": {
+                "+": {
+                    "_type": "none"
+                },
+                "-": {
+                    "_type": "none"
+                }
+            }
+        }
+    }
+}
