@@ -5,10 +5,13 @@
 # small set of opcodes and some fine-grained device control
 import usb1
 import threading
+from multiprocessing import pool
 import time
 import sys
 import json
 from utils import utils
+import queue
+# import asyncio
 
 firmware_packet_sequence = None
 
@@ -53,6 +56,9 @@ class Kore2USB:
         self.pid = 0x4712
         self.serial_number = ""
         self.debug = debug
+        self.recv_queue = queue.SimpleQueue()
+        self.send_queue = queue.SimpleQueue()
+        self.thread_pool = pool.ThreadPool(3)
         self.endpoints = {
             'control_out' : 0x0,
             'control_in' : 0x80,
@@ -90,16 +96,17 @@ class Kore2USB:
         self.shutdown_event = threading.Event()
         self.handshake_complete_event = threading.Event()
 
-        # The USB polling thread is launched, but waits on the "handshake_complete_event"
-        # to know when the full device startup sequence has been completed
-        self.read_thread = threading.Thread(target=self.poll_usb_thread_func)
-        self.read_thread.start()
-
         # Events specific to opcode 1 and 8, which
         # are expected to receive responses on the recv thread
         self.spec_received_event = threading.Event()
         self.op_8_received_event = threading.Event()
-    
+
+        # The USB polling thread is launched, but waits on the "handshake_complete_event"
+        # to know when the full device startup sequence has been completed
+        self.thread_pool.apply_async(self.poll_usb_thread_func)
+        self.thread_pool.apply_async(self.recv_queue_consumer_func)
+        self.thread_pool.apply_async(self.send_queue_consumer_func)
+  
     def close(self):
         utils.print_if_debug(self.debug, "Kore2USB.close(): enter")
         self.shutdown_event.set()
@@ -119,20 +126,66 @@ class Kore2USB:
         while self.usb_handle is None:
             time.sleep(0.1)
             self.usb_handle = self.usb_context.openByVendorIDAndProductID(0x17cc, 0x4712)
+    
+    def queue_bulk_send(self, data):
+        self.send_queue.put(data)
+
+    def send_queue_consumer_func(self):
+        # We can let the send thread begin immediately
+        while True:
+            if self.shutdown_event.is_set():
+                return
+            
+            data = None
+
+            try:
+                data = self.send_queue.get(timeout=1)
+            except Exception as e:
+                continue
+            
+            try:
+                self.try_write_usb_bulk(endpoints['bulk_out'], data, 200)
+            except Exception as e:
+                print("WORKER: ", e)
+
+
+    def recv_queue_consumer_func(self):
+        # The setup logic handles receives directly until the handshake is complete
+        self.handshake_complete_event.wait()
+
+        while True:
+            if self.shutdown_event.is_set():
+                return
+            
+            data = None
+
+            try:
+                data = self.recv_queue.get(timeout=1)
+            except Exception as e:
+                continue
+            
+            try:
+                self.handle_usb_message(data)
+            except Exception as e:
+                print("WORKER: ", e)
+
 
     # The receive thread - this handles pulling USB BULK IN data from the controller
     # as it arrives
-    def poll_usb_thread_func(self):
+    def poll_usb_thread_func(self):       
         placeholder_read_size = 256
-        placeholder_timeout = 2500
+        placeholder_timeout = 500
         # Don't clog up with reads until the handshake sequence is done
         self.handshake_complete_event.wait()
+
         while True:
             try:
                 if self.shutdown_event.is_set():
+                    message_handler_pool.close()
+                    message_handler_pool.join()
                     return
                 data = self.usb_handle.bulkRead(self.endpoints['bulk_in'], placeholder_read_size, placeholder_timeout)
-                self.handle_usb_message(data)
+                self.recv_queue.put(data)
             except Exception as e:
                 utils.print_if_debug(self.debug, "Polling problem:", e)
     
@@ -250,16 +303,18 @@ class Kore2USB:
     # Do a bulk write with timeout
     def try_write_usb_bulk(self, endpoint, data, timeout):
         bytes_sent = 0
+
         try:
             bytes_sent = self.usb_handle.bulkWrite(endpoint, data, timeout)
         except Exception as e:
             print("ERROR sending command: ", e)
+
         #print("Sent", bytes_sent, "bytes to controller")
         return bytes_sent
 
     def send_bulk_command_buffer(self, command_buf, timeout, do_recv, recv_len=1):
         resp = None
-        self.try_write_usb_bulk(endpoints['bulk_out'], command_buf, timeout)
+        self.queue_bulk_send(command_buf)
         # Wait for reply
         if (do_recv):
             resp = self.try_read_usb_bulk(endpoints['bulk_in'], recv_len, timeout)       

@@ -10,6 +10,7 @@ class Kore2Display:
         self.debug = debug
         self.column_offset = 0x05
         self.display_size = {'width' : 128, 'height' : 64}
+        self.brightness = 50 # 0-63
     
     # Send the set of commands to initialize the LCD display
     def initialize(self):
