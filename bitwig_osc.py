@@ -17,6 +17,7 @@ from pythonosc.dispatcher import Dispatcher
 import threading
 from multiprocessing import pool
 from osc_connection import OscConnection
+from pubsub import pub
 
 # Will need to register callback functions for useful groups of functionality
 # Eventually I would like operations to be context-sensitive as well
@@ -55,7 +56,7 @@ from osc_connection import OscConnection
 # Browser
 
 # Simplest proof of concept would be to get/set mute state for now and ignore everything else
-
+# This class exists to convert OSC input to pub/sub events and convert pub/sub events to osc output
 class BitwigOsc:
     def __init__(self, event_callback, recv_address='127.0.0.1', recv_port=9000, send_address='127.0.0.1', send_port=8000):
 
@@ -135,52 +136,33 @@ class BitwigOsc:
             self.convert_and_send_osc_to_controller(msg)
 
     def convert_and_send_osc_to_controller(self, data):
-        print("convert and send:", data)
+        print("convert and publish:", data)
         # Convert received OSC data to internal representation
         # and send to the controller
         # FOR NOW, just split, check if there's a handler, and call the handler
         addr_list= data['address'].split('/')[1:]  # split leaves an empty string in index zero because of the leading slash
         print(addr_list)
-        event = self.convert_message_to_event(addr_list, data['args'])
-        self.event_callback(event)
+        topic = self.convert_message_to_topic(addr_list, data['args'])
+        pub.sendMessage(topic, arg1=data['args'])
 
+    def convert_message_to_topic(self, addr_list):      
+        topic = 'daw.in'
+        for part in addr_list:
+            topic += part
 
-    def convert_message_to_event(self, addr_list, args):
-        event = {
-            'context' : addr_list[0],
-            'args' : args
-        }
-        
-        if len(addr_list) == 1:
-            return event
+        return topic
 
-        if event['context'] == 'track':
-            if addr_list[1].isnumeric():
-                event['track'] = int(addr_list[1])
-            elif addr_list[1] == 'selected':
-                event['track'] = 'selected'
-            else:
-                event['track'] = 'global'
-            
-            if event['track'] !='global':
-                if addr_list[2] != 'clip':
-                    event['name'] = addr_list[2]
-                else:
-                    # SKIP FOR NOW?
-                    return event
-            else:
-                # SKIP FOR NOW?
-                return event
-        
-        print(event)
-        return event
+    def convert_event_to_message(self, event):
+        return {}     
 
-         
-
-    def convert_and_send_controller_to_osc(self, data):
+    def convert_and_send_controller_to_osc(self, event):
         pass
 
-
+    # TODO: currently the event callback is being executed on the
+    # same thread that is consuming osc messages from the osc connection.
+    # It might be better to queue up events to the controller instead.
+    # This queue could be managed by the controller rather than
+    # this class, unclear which makes more sense
     def convert_and_queue_received_osc(self, addr, *args):
         # Convert received data to internal representation
         # and queue it for consumers

@@ -3,14 +3,24 @@ import time
 import numpy
 from PIL import Image, ImageEnhance, ImageDraw, ImageFont
 from utils import utils
+from views.mixer.mixer import MixerView
+import threading
 
 class Kore2Display:
-    def __init__(self, usb_handler, debug):
+    def __init__(self, usb_handler, update_period=0.1, debug=False):
         self.usb_handler = usb_handler
         self.debug = debug
         self.column_offset = 0x05
         self.display_size = {'width' : 128, 'height' : 64}
         self.brightness = 50 # 0-63
+        self.update_period = update_period
+        self.shutdown_event = threading.Event()
+        self.render_thread = threading.Thread(target=self.render_loop)
+
+        # TODO:
+        # The controller will eventually have multiple views,
+        # so figure out the best place/method for managing them (this aint it)
+        self.frame_source = MixerView()
     
     # Send the set of commands to initialize the LCD display
     def initialize(self):
@@ -142,6 +152,23 @@ class Kore2Display:
         img_scaled = img.resize((128, 64))
 
         img_1b = img_scaled.convert('1')
-        img_1b.save('img/test.png')
+        # img_1b.save('img/test.png')
 
         self.write_buffer_to_display(img_1b, manual_wait)
+    
+    def set_update_period_seconds(self, period):
+        self.update_period = period
+
+    def render_loop(self):
+        
+        while True:
+            if self.shutdown_event.is_set():
+                return
+            
+            self.frame_source.render_frame()
+            time.sleep(self.update_period)
+
+    def shutdown(self):
+        self.shutdown_event.set()
+        self.render_thread.join()
+        

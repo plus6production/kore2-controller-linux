@@ -71,7 +71,7 @@ class Kore2USB:
             3 : self.default_handler,
             4 : self.default_handler,
             6 : self.default_handler,
-            8 : self.handle_opcode_8
+            8 : self.handle_display_opcode
         }
 
     def default_handler(self, data):
@@ -386,14 +386,17 @@ class Kore2USB:
         else:
             utils.print_to_file(list(data))
 
-    def set_io_message_callback(self, handler_func):
+    def set_button_opcode_callback(self, handler_func):
         self.opcode_map[4] = handler_func
+
+    def set_encoder_opcode_callback(self, handler_func):
+        self.opcode_map[2] = handler_func
 
     # Handle opcode 0x1 from controller
     def handle_device_spec(self, data):
         self.spec_received_event.set()
         utils.print_to_file(list(data))
 
-    def handle_opcode_8(self, data):
+    def handle_display_opcode(self, data):
         self.op_8_received_event.set()
         #print_to_file("op 8")

@@ -5,13 +5,19 @@ import json
 
 from kore_2_controller.kore_2_controller import Kore2Controller
 from bitwig_osc import BitwigOsc
+from osc_connection import OscConnection
+from pubsub import pub
 
 def main():
     controller = Kore2Controller()
     controller.initialize()
 
-    bitwig = BitwigOsc(controller.handle_incoming_events)
-    bitwig.connect()
+    # This will start publishing osc messages as pubsub topics
+    osc_connection = OscConnection()
+    osc_connection.connect()
+
+    #bitwig = BitwigOsc(controller.handle_incoming_events)
+    #bitwig.connect()
 
     # converted_frames = []
     # imageObject = Image.open('img/test_waveform.gif')
@@ -56,8 +62,9 @@ def main():
     should_send = 1
     while should_send > 0:
         should_send = int(input("1 to wait more, 0 to exit: "))
+        pub.sendMessage('daw.to.track.1.mute', arg1='daw.to.track.1.mute', arg2=[])
 
-    bitwig.disconnect()
+    osc_connection.disconnect()
     controller.shutdown()
     print("END OF LINE")
     return

@@ -1,12 +1,8 @@
-from PIL import Image, ImageDraw, ImageFont
+from views.mixer.mixer import MixerView
 
+view = MixerView()
+view.faders[3]['vu'] = 512
 
-img = Image.new('1', (128, 64), 1)
-draw = ImageDraw.Draw(img)
+frame = view.render_frame()
 
-font = ImageFont.truetype("/usr/share/fonts/liberation/LiberationMono-Bold.ttf", size=20)
-draw.text((0, 0), "Plus 6\nwuz\nhere!", 0, font=font, align="center")
-img.save('test.png')
-
-print(img)
-#print(list(img_1b.tobytes()))
+frame.save('test.png')

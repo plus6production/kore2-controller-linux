@@ -41,6 +41,8 @@ class Kore2Leds:
         self.debug = debug
         self.usb_handler = usb_handler
         self.MAX_LED_BRIGHTNESS = 63
+
+        # TODO: Update to lowercase and dot based for pubsub
         self.led_map = {
             'F2' :      { 'index' : 28, 'brightness' : 0 },
             'CONTROL' : { 'index' : 26, 'brightness' : 0 },
