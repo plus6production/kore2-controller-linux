@@ -22,8 +22,19 @@ class MixerModel:
 
             self.input_to_daw_mapping[in_topic_base + str(x + 1)] = out_topic_base + str(x+1) + '.volume'
 
-        for key in self.input_to_daw_mapping:
-            print(key, self.input_to_daw_mapping[key])
+        #for key in self.input_to_daw_mapping:
+        #    print(key, self.input_to_daw_mapping[key])
+
+        self.daw_to_controller_mapping = {}
+        for x in range(len(self.state['tracks'])):
+            in_topic_base = 'daw.from.track.'
+            out_topic_base = 'controller.output.led.'
+
+            self.daw_to_controller_mapping[in_topic_base + str(x+1) + '.volume'] = out_topic_base + 'touch.' + str(x+1)
+            self.daw_to_controller_mapping[in_topic_base + str(x+1) + '.mute'] = out_topic_base + 'btn.' + str(x+1)
+
+        for key in self.daw_to_controller_mapping:
+            print(key, self.daw_to_controller_mapping[key])
 
         self.listeners = set()
 

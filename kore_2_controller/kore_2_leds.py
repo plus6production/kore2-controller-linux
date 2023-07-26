@@ -1,4 +1,6 @@
 # Class to handle LED functionality
+from pubsub import pub
+from utils import utils
 
 '''
 static const struct caiaq_controller kore_controller[] = {
@@ -42,39 +44,42 @@ class Kore2Leds:
         self.usb_handler = usb_handler
         self.MAX_LED_BRIGHTNESS = 63
 
+        self.listeners = set()
+        self.listeners.add(pub.subscribe(self.handle_led_topic, 'controller.output.led'))
+
         # TODO: Update to lowercase and dot based for pubsub
         self.led_map = {
-            'F2' :      { 'index' : 28, 'brightness' : 0 },
-            'CONTROL' : { 'index' : 26, 'brightness' : 0 },
-            'ENTER' :   { 'index' : 24, 'brightness' : 0 },
-            'F1' :      { 'index' : 27, 'brightness' : 0 },
-            'ESC' :     { 'index' : 29, 'brightness' : 0 },
-            'SOUND' :   { 'index' : 31, 'brightness' : 0 },
-            'RIGHT' :   { 'index' : 22, 'brightness' : 0 },
-            'DOWN' :    { 'index' : 20, 'brightness' : 0 },
-            'UP' :      { 'index' : 16, 'brightness' : 0 },
-            'LEFT' :    { 'index' : 18, 'brightness' : 0 },
-            'LISTEN' :  { 'index' : 17, 'brightness' : 0 },
-            'RECORD' :  { 'index' : 19, 'brightness' : 0 },
-            'PLAY' :    { 'index' : 21, 'brightness' : 0 },
-            'STOP' :    { 'index' : 23, 'brightness' : 0 },
-            'BTN_1' :   { 'index' : 8,  'brightness' : 0 },
-            'BTN_2' :   { 'index' : 12, 'brightness' : 0 },
-            'BTN_3' :   { 'index' : 0,  'brightness' : 0 },
-            'BTN_4' :   { 'index' : 4,  'brightness' : 0 },
-            'BTN_5' :   { 'index' : 11, 'brightness' : 0 },
-            'BTN_6' :   { 'index' : 15, 'brightness' : 0 },
-            'BTN_7' :   { 'index' : 3,  'brightness' : 0 },
-            'BTN_8' :   { 'index' : 7,  'brightness' : 0 },
-            'TOUCH_1' : { 'index' : 10, 'brightness' : 0 },
-            'TOUCH_2' : { 'index' : 14, 'brightness' : 0 },
-            'TOUCH_3' : { 'index' : 2,  'brightness' : 0 },
-            'TOUCH_4' : { 'index' : 6,  'brightness' : 0 },
-            'TOUCH_5' : { 'index' : 9,  'brightness' : 0 },
-            'TOUCH_6' : { 'index' : 13, 'brightness' : 0 },
-            'TOUCH_7' : { 'index' : 1,  'brightness' : 0 },
-            'TOUCH_8' : { 'index' : 5,  'brightness' : 0 },
-            'LCD' :     { 'index' : 30, 'brightness' : 0 }
+            'f2' :      { 'index' : 28, 'brightness' : 0 },
+            'control' : { 'index' : 26, 'brightness' : 0 },
+            'enter' :   { 'index' : 24, 'brightness' : 0 },
+            'f1' :      { 'index' : 27, 'brightness' : 0 },
+            'esc' :     { 'index' : 29, 'brightness' : 0 },
+            'sound' :   { 'index' : 31, 'brightness' : 0 },
+            'right' :   { 'index' : 22, 'brightness' : 0 },
+            'down' :    { 'index' : 20, 'brightness' : 0 },
+            'up' :      { 'index' : 16, 'brightness' : 0 },
+            'left' :    { 'index' : 18, 'brightness' : 0 },
+            'listen' :  { 'index' : 17, 'brightness' : 0 },
+            'record' :  { 'index' : 19, 'brightness' : 0 },
+            'play' :    { 'index' : 21, 'brightness' : 0 },
+            'stop' :    { 'index' : 23, 'brightness' : 0 },
+            'btn.1' :   { 'index' : 8,  'brightness' : 0 },
+            'btn.2' :   { 'index' : 12, 'brightness' : 0 },
+            'btn.3' :   { 'index' : 0,  'brightness' : 0 },
+            'btn.4' :   { 'index' : 4,  'brightness' : 0 },
+            'btn.5' :   { 'index' : 11, 'brightness' : 0 },
+            'btn.6' :   { 'index' : 15, 'brightness' : 0 },
+            'btn.7' :   { 'index' : 3,  'brightness' : 0 },
+            'btn.8' :   { 'index' : 7,  'brightness' : 0 },
+            'touch.1' : { 'index' : 10, 'brightness' : 0 },
+            'touch.2' : { 'index' : 14, 'brightness' : 0 },
+            'touch.3' : { 'index' : 2,  'brightness' : 0 },
+            'touch.4' : { 'index' : 6,  'brightness' : 0 },
+            'touch.5' : { 'index' : 9,  'brightness' : 0 },
+            'touch.6' : { 'index' : 13, 'brightness' : 0 },
+            'touch.7' : { 'index' : 1,  'brightness' : 0 },
+            'touch.8' : { 'index' : 5,  'brightness' : 0 },
+            'lcd' :     { 'index' : 30, 'brightness' : 0 }
         }
 
         # Keep a byte array representation ready to send to the controller
@@ -82,6 +87,30 @@ class Kore2Leds:
     
     def send_controller_led_state(self):
         self.usb_handler.send_led_command(self.led_arr, 100)
+
+    def handle_led_topic(self, arg1, arg2):
+        #print("handle_led_topic:", arg1, arg2)
+        split = utils.split_and_strip_topic_to_list(arg1, 3)
+        led_name = ''
+        if len(split) == 2:
+            if split[0] == 'touch' or split[0] == 'btn':
+                led_name = split[0] + '.' + split[1]
+        elif len(split) == 1:
+            led_name = split[0]
+        else:
+            return
+
+        val = 0
+        if len(arg2) == 1:
+            val = int(arg2[0])
+            # TODO: better override for boolean inputs
+            # This should be handled in the "model" by providing a type or a min/max
+            if split[0] == 'btn' and val == 1:
+                val = 1024
+        if val > 0:
+            val = utils.convert_val_between_ranges(val, (0, 1024), (0, 63))
+     
+        self.set_single_led(led_name, val)    
 
     # Test function that sets a single LED while clearing the others
     def set_single_led(self, name, value):

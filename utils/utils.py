@@ -16,3 +16,14 @@ def get_bit_flag_indices(flags):
         if flags & (1 << x):
             indices.append(x)
     return indices
+
+# Splits the provided topic string into its parts and
+# removes the specified number of leading parts
+def split_and_strip_topic_to_list(topic, num_prefixes):
+    return topic.split('.')[num_prefixes:]
+
+
+def convert_val_between_ranges(in_val, in_range, out_range):
+    ratio = in_val / (in_range[1] - in_range[0])
+    scaled_out = ((out_range[1] - out_range[0]) * ratio) + out_range[0]
+    return int(scaled_out)
