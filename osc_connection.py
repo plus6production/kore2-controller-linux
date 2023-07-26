@@ -39,7 +39,7 @@ class OscConnection:
 
     # Simple thread to read the input queue and send the message
     def osc_sender_thread(self):
-        print('osc_sender_thread start')
+        #print('osc_sender_thread start')
         osc_client = SimpleUDPClient(self.send_address, self.send_port)
         while True:
             if self.shutdown_event.is_set():
@@ -59,9 +59,9 @@ class OscConnection:
                 #print("ERROR: osc_sender_thread:", e)
                 continue
 
-            print('OSC SEND', msg['address'], msg['args'])
+            #print('OSC SEND', msg['address'], msg['args'])
             osc_client.send_message(msg['address'], msg['args'])
-        print('osc_sender_thread end')
+        #print('osc_sender_thread end')
 
     def osc_receiver_thread(self):
         # We've given the server a thread to do its work,
@@ -80,11 +80,11 @@ class OscConnection:
         pass
 
     def convert_and_publish_received_osc(self, addr, *args):
-        print("convert and publish:", addr)
+        #print("convert and publish:", addr)
         # Convert received OSC data to pub/sub representation
         # and send to the controller
         topic = self.convert_osc_address_to_topic(addr, 'from')
-        print(topic)
+        #print(topic)
         pub.sendMessage(topic, arg1=topic, arg2=list(args))
 
     def convert_osc_address_to_topic(self, address, direction):
@@ -98,11 +98,11 @@ class OscConnection:
     # Due to how pubsub appears to work, I need to duplicate data
     # by making arg1 also be the pubsub topic, and arg2 is actual args (in a list)
     def convert_and_send_received_sub(self, arg1, arg2):
-        print('convert_and_send_received_sub')
-        print(arg1)
-        print(arg2)
+        #print('convert_and_send_received_sub')
+        #print(arg1)
+        #print(arg2)
         address = self.convert_topic_to_osc_address(arg1)
-        print(address)
+        #print(address)
         self.send_message(address, arg2)
 
     def convert_topic_to_osc_address(self, topic):

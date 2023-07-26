@@ -13,10 +13,14 @@ class MixerModel:
             out_topic_base = 'daw.to.track.'
 
             # Configure mute mapping
-            self.input_to_daw_mapping[in_topic_base + 'btn.' + str(x+1)] = (out_topic_base + str(x+1) + '.mute', [])
+            self.input_to_daw_mapping[in_topic_base + 'btn.' + str(x+1)] = out_topic_base + str(x+1) + '.mute'
 
             # Configure touch mapping
-            self.input_to_daw_mapping[in_topic_base + 'touch.' + str(x+1)] = (out_topic_base + str(x+1) + '.select', [])
+            self.input_to_daw_mapping[in_topic_base + 'touch.' + str(x+1)] = out_topic_base + str(x+1) + '.select'
+
+            in_topic_base = 'controller.input.encoder.'
+
+            self.input_to_daw_mapping[in_topic_base + str(x + 1)] = out_topic_base + str(x+1) + '.volume'
 
         for key in self.input_to_daw_mapping:
             print(key, self.input_to_daw_mapping[key])
@@ -25,7 +29,6 @@ class MixerModel:
 
     def subscribe_to_topics(self):
         self.listeners.add(self.update_state_from_daw, 'daw.from.track')
-        self.listeners.add(self.handle_button_event, 'controller.input.button')
 
     # Splits the provided topic string into its parts and
     # removes the specified number of leading parts

@@ -62,7 +62,6 @@ def main():
     should_send = 1
     while should_send > 0:
         should_send = int(input("1 to wait more, 0 to exit: "))
-        pub.sendMessage('daw.to.track.1.mute', arg1='daw.to.track.1.mute', arg2=[])
 
     osc_connection.disconnect()
     controller.shutdown()
