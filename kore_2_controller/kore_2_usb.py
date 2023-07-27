@@ -11,7 +11,7 @@ import sys
 import json
 from utils import utils
 import queue
-# import asyncio
+import prctl
 
 firmware_packet_sequence = None
 
@@ -58,7 +58,7 @@ class Kore2USB:
         self.debug = debug
         self.recv_queue = queue.SimpleQueue()
         self.send_queue = queue.SimpleQueue()
-        self.thread_pool = pool.ThreadPool(3)
+        self.thread_pool = pool.ThreadPool(4)
         self.endpoints = {
             'control_out' : 0x0,
             'control_in' : 0x80,
@@ -104,15 +104,23 @@ class Kore2USB:
         # The USB polling thread is launched, but waits on the "handshake_complete_event"
         # to know when the full device startup sequence has been completed
         self.thread_pool.apply_async(self.poll_usb_thread_func)
+
+        # Two receive queue handlers to allow parallel dispatch in cases when a lot of processing needs to be done
+        # TODO: would be better to allow individual receive tasks to be applied on the fly
+        # TODO: a process-global thread pool might be a better option overall, to reduce surprise thread creation
         self.thread_pool.apply_async(self.recv_queue_consumer_func)
+        self.thread_pool.apply_async(self.recv_queue_consumer_func)
+
+        # Single send handler
         self.thread_pool.apply_async(self.send_queue_consumer_func)
-  
+
     def close(self):
         utils.print_if_debug(self.debug, "Kore2USB.close(): enter")
         self.shutdown_event.set()
         utils.print_if_debug(self.debug, "Kore2USB.close(): shutdown sent")
         self.thread_pool.close()
         self.thread_pool.join()
+        print("Kore2Usb: Joined thread pool")
         if self.usb_handle:
             self.usb_handle.releaseInterface(0)
             self.usb_handle.close()
@@ -131,6 +139,7 @@ class Kore2USB:
         self.send_queue.put(data)
 
     def send_queue_consumer_func(self):
+        prctl.set_name("usb_send_q")
         # We can let the send thread begin immediately
         while True:
             if self.shutdown_event.is_set():
@@ -146,10 +155,11 @@ class Kore2USB:
             try:
                 self.try_write_usb_bulk(endpoints['bulk_out'], data, 200)
             except Exception as e:
-                print("WORKER: ", e)
+                print("USB send worker:", e, data)
 
 
     def recv_queue_consumer_func(self):
+        prctl.set_name("usb_recv_q")
         # The setup logic handles receives directly until the handshake is complete
         self.handshake_complete_event.wait()
 
@@ -167,12 +177,13 @@ class Kore2USB:
             try:
                 self.handle_usb_message(data)
             except Exception as e:
-                print("WORKER: ", e)
+                print("USB recv worker:", e, data)
 
 
     # The receive thread - this handles pulling USB BULK IN data from the controller
     # as it arrives
-    def poll_usb_thread_func(self):       
+    def poll_usb_thread_func(self):
+        prctl.set_name("usb_poll_bulk")
         placeholder_read_size = 256
         placeholder_timeout = 500
         # Don't clog up with reads until the handshake sequence is done
@@ -181,8 +192,6 @@ class Kore2USB:
         while True:
             try:
                 if self.shutdown_event.is_set():
-                    message_handler_pool.close()
-                    message_handler_pool.join()
                     return
                 data = self.usb_handle.bulkRead(self.endpoints['bulk_in'], placeholder_read_size, placeholder_timeout)
                 self.recv_queue.put(data)
@@ -231,10 +240,36 @@ class Kore2USB:
                 utils.print_if_debug(self.debug, 'ERROR setting config after firmware:', e)
             
             # Device will now reset, which means it disappears.  Need to somehow recapture the device
+            self.usb_handle.releaseInterface(0)
             self.usb_handle.close()
             self.usb_handle = None
             time.sleep(1)
             self.wait_for_device_handle()
+
+            # Disconnect kernel driver from interface
+            if self.usb_handle.kernelDriverActive(0):
+                utils.print_if_debug(self.debug, "Kore2USB: Detaching existing kernel driver")
+                self.usb_handle.detachKernelDriver(0)
+        
+            # Claim interface
+            self.usb_handle.claimInterface(0)
+
+            current_config = self.usb_handle.getConfiguration()
+            print("current_config", current_config)
+
+            usb_mode = self.usb_handle.getASCIIStringDescriptor(3)
+            print('mode:', usb_mode)
+
+            try:
+                self.usb_handle.setConfiguration(1)
+            except Exception as e:
+                utils.print_if_debug(self.debug, 'ERROR setting config after device reboot:', e)
+            self.usb_handle.setInterfaceAltSetting(0, 1)
+
+            usb_mode = self.usb_handle.getASCIIStringDescriptor(3)
+            print('mode:', usb_mode)
+
+
 
     # The initial set of USB CONTROL and BULK messages to fully bring up the Kore 2 controller
     # with updated firmware and all the functionality that NI locks behind its software

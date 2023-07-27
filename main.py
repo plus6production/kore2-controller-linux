@@ -7,8 +7,10 @@ from kore_2_controller.kore_2_controller import Kore2Controller
 from bitwig_osc import BitwigOsc
 from osc_connection import OscConnection
 from pubsub import pub
+import prctl
 
 def main():
+    prctl.set_name("main")
     controller = Kore2Controller()
     controller.initialize()
 
@@ -62,6 +64,8 @@ def main():
     should_send = 1
     while should_send > 0:
         should_send = int(input("1 to wait more, 0 to exit: "))
+        #controller.display.frame_source.faders[2]['volume'] = should_send
+        #controller.display.frame_source.is_state_dirty = True
 
     osc_connection.disconnect()
     controller.shutdown()

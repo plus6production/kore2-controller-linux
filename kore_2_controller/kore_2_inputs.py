@@ -4,7 +4,7 @@ from pubsub import pub
 import numpy
 
 # TODO: Buttons can be rising edge, falling edge, or level
-
+# Publishes 'controller.input.button' and 'controller.input.encoder' events
 class Kore2Inputs:
 
     def __init__(self, usb_handler, debug=False):
@@ -57,36 +57,36 @@ class Kore2Inputs:
         ]
 
         self.buttons = {
-            'f2' :      { 'state' : False, '_is_pressed' : False, 'mode' : 'momentary' },
-            'control' : { 'state' : False, '_is_pressed' : False, 'mode' : 'momentary' },
-            'enter' :   { 'state' : False, '_is_pressed' : False, 'mode' : 'momentary' },
-            'f1' :      { 'state' : False, '_is_pressed' : False, 'mode' : 'momentary' },
-            'esc' :     { 'state' : False, '_is_pressed' : False, 'mode' : 'momentary' },
-            'sound' :   { 'state' : False, '_is_pressed' : False, 'mode' : 'momentary' },
-            'right' :   { 'state' : False, '_is_pressed' : False, 'mode' : 'momentary' },
-            'down' :    { 'state' : False, '_is_pressed' : False, 'mode' : 'momentary' },
-            'up' :      { 'state' : False, '_is_pressed' : False, 'mode' : 'momentary' },
-            'left' :    { 'state' : False, '_is_pressed' : False, 'mode' : 'momentary' },
-            'listen' :  { 'state' : False, '_is_pressed' : False, 'mode' : 'momentary' },
-            'record' :  { 'state' : False, '_is_pressed' : False, 'mode' : 'momentary' },
-            'play' :    { 'state' : False, '_is_pressed' : False, 'mode' : 'momentary' },
-            'stop' :    { 'state' : False, '_is_pressed' : False, 'mode' : 'momentary' },
-            'btn.1' :   { 'state' : False, '_is_pressed' : False, 'mode' : 'momentary' },
-            'btn.2' :   { 'state' : False, '_is_pressed' : False, 'mode' : 'momentary' },
-            'btn.3' :   { 'state' : False, '_is_pressed' : False, 'mode' : 'momentary' },
-            'btn.4' :   { 'state' : False, '_is_pressed' : False, 'mode' : 'momentary' },
-            'btn.5' :   { 'state' : False, '_is_pressed' : False, 'mode' : 'momentary' },
-            'btn.6' :   { 'state' : False, '_is_pressed' : False, 'mode' : 'momentary' },
-            'btn.7' :   { 'state' : False, '_is_pressed' : False, 'mode' : 'momentary' },
-            'btn.8' :   { 'state' : False, '_is_pressed' : False, 'mode' : 'momentary' },
-            'touch.1' : { 'state' : False, '_is_pressed' : False, 'mode' : 'momentary' },
-            'touch.2' : { 'state' : False, '_is_pressed' : False, 'mode' : 'momentary' },
-            'touch.3' : { 'state' : False, '_is_pressed' : False, 'mode' : 'momentary' },
-            'touch.4' : { 'state' : False, '_is_pressed' : False, 'mode' : 'momentary' },
-            'touch.5' : { 'state' : False, '_is_pressed' : False, 'mode' : 'momentary' },
-            'touch.6' : { 'state' : False, '_is_pressed' : False, 'mode' : 'momentary' },
-            'touch.7' : { 'state' : False, '_is_pressed' : False, 'mode' : 'momentary' },
-            'touch.8' : { 'state' : False, '_is_pressed' : False, 'mode' : 'momentary' }
+            'f2' :      { 'state' : False, '_is_pressed' : False, 'mode' : 'press' },
+            'control' : { 'state' : False, '_is_pressed' : False, 'mode' : 'press' },
+            'enter' :   { 'state' : False, '_is_pressed' : False, 'mode' : 'press' },
+            'f1' :      { 'state' : False, '_is_pressed' : False, 'mode' : 'press' },
+            'esc' :     { 'state' : False, '_is_pressed' : False, 'mode' : 'press' },
+            'sound' :   { 'state' : False, '_is_pressed' : False, 'mode' : 'press' },
+            'right' :   { 'state' : False, '_is_pressed' : False, 'mode' : 'press' },
+            'down' :    { 'state' : False, '_is_pressed' : False, 'mode' : 'press' },
+            'up' :      { 'state' : False, '_is_pressed' : False, 'mode' : 'press' },
+            'left' :    { 'state' : False, '_is_pressed' : False, 'mode' : 'press' },
+            'listen' :  { 'state' : False, '_is_pressed' : False, 'mode' : 'press' },
+            'record' :  { 'state' : False, '_is_pressed' : False, 'mode' : 'press' },
+            'play' :    { 'state' : False, '_is_pressed' : False, 'mode' : 'press' },
+            'stop' :    { 'state' : False, '_is_pressed' : False, 'mode' : 'press' },
+            'btn.1' :   { 'state' : False, '_is_pressed' : False, 'mode' : 'press' },
+            'btn.2' :   { 'state' : False, '_is_pressed' : False, 'mode' : 'press' },
+            'btn.3' :   { 'state' : False, '_is_pressed' : False, 'mode' : 'press' },
+            'btn.4' :   { 'state' : False, '_is_pressed' : False, 'mode' : 'press' },
+            'btn.5' :   { 'state' : False, '_is_pressed' : False, 'mode' : 'press' },
+            'btn.6' :   { 'state' : False, '_is_pressed' : False, 'mode' : 'press' },
+            'btn.7' :   { 'state' : False, '_is_pressed' : False, 'mode' : 'press' },
+            'btn.8' :   { 'state' : False, '_is_pressed' : False, 'mode' : 'press' },
+            'touch.1' : { 'state' : False, '_is_pressed' : False, 'mode' : 'press' },
+            'touch.2' : { 'state' : False, '_is_pressed' : False, 'mode' : 'press' },
+            'touch.3' : { 'state' : False, '_is_pressed' : False, 'mode' : 'press' },
+            'touch.4' : { 'state' : False, '_is_pressed' : False, 'mode' : 'press' },
+            'touch.5' : { 'state' : False, '_is_pressed' : False, 'mode' : 'press' },
+            'touch.6' : { 'state' : False, '_is_pressed' : False, 'mode' : 'press' },
+            'touch.7' : { 'state' : False, '_is_pressed' : False, 'mode' : 'press' },
+            'touch.8' : { 'state' : False, '_is_pressed' : False, 'mode' : 'press' }
         }
 
         # Right now the encoders could be infinite (absolute) or bounded (abs + offset)
@@ -101,10 +101,18 @@ class Kore2Inputs:
             { '_packet_indices' : [11, 9],  'value' : 0, '_scaled' : 0, 'min' : 0, 'max' : 1023, '_offset' : 0, '_raw_ab' : [0, 0], '_line_count' : 0, '_phase' : 0, '_course_radians' : 0, '_fine_radians' : 0 },
             { '_packet_indices' : [4, 6],   'value' : 0, '_scaled' : 0, 'min' : 0, 'max' : 1023, '_offset' : 0, '_raw_ab' : [0, 0], '_line_count' : 0, '_phase' : 0, '_course_radians' : 0, '_fine_radians' : 0 },
         ]
-    
+
+    # TODO: This means that no button releases are published
+    # It just behaves as a toggle to whatever it's sending to
+    # TODO: could have a method to update the mode of buttons
+    # so that they are momentary and send 1,0 for press,release
+    # Would need to bypass the internal state change logic's toggle checking
     def publish_button_event(self, button_name, state):
         topic = 'controller.input.button.' + button_name
-        pub.sendMessage(topic, arg1=topic, arg2=[state])
+        arg2 = []
+        if self.buttons[button_name]['mode'] != 'press':
+            arg2 = [1 if state else 0]
+        pub.sendMessage(topic, arg1=topic, arg2=arg2)
 
     def check_button_for_state_change(self, button_name, is_pressed):
         # Use the internal "_is_pressed" to keep track of raw button states
@@ -118,9 +126,15 @@ class Kore2Inputs:
 
         self.buttons[button_name]['_is_pressed'] = is_pressed
         
-        if self.buttons[button_name]['mode'] == 'momentary' and is_pressed != self.buttons[button_name]['state']:
-            self.buttons[button_name]['state'] = is_pressed
-            self.publish_button_event(button_name, self.buttons[button_name]['state'])
+        if self.buttons[button_name]['mode'] == 'momentary':
+            if is_pressed != self.buttons[button_name]['state']:
+                self.buttons[button_name]['state'] = is_pressed
+                self.publish_button_event(button_name, self.buttons[button_name]['state'])
+        elif self.buttons[button_name]['mode'] == 'press':
+            if is_pressed != self.buttons[button_name]['state']:
+                self.buttons[button_name]['state'] = is_pressed
+                if is_pressed:
+                    self.publish_button_event(button_name, self.buttons[button_name]['state'])
         elif (is_pressed and self.buttons[button_name]['mode'] == 'rising') or (not is_pressed and self.buttons[button_name]['mode'] == 'falling'):
             self.buttons[button_name]['state'] = not self.buttons[button_name]['state']
             self.publish_button_event(button_name, self.buttons[button_name]['state'])

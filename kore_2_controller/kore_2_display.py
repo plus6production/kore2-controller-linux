@@ -3,24 +3,22 @@ import time
 import numpy
 from PIL import Image, ImageEnhance, ImageDraw, ImageFont
 from utils import utils
-from views.mixer.mixer import MixerView
 import threading
+from queue import SimpleQueue
+import prctl
+from timeit import default_timer as timer
 
 class Kore2Display:
-    def __init__(self, usb_handler, update_period=0.1, debug=False):
+    def __init__(self, usb_handler, debug=False):
         self.usb_handler = usb_handler
         self.debug = debug
         self.column_offset = 0x05
         self.display_size = {'width' : 128, 'height' : 64}
         self.brightness = 50 # 0-63
-        self.update_period = update_period
+        self.frame_queue = SimpleQueue()
+        self.previous_frame_parts = None
         self.shutdown_event = threading.Event()
-        self.render_thread = threading.Thread(target=self.render_loop)
-
-        # TODO:
-        # The controller will eventually have multiple views,
-        # so figure out the best place/method for managing them (this aint it)
-        self.frame_source = MixerView()
+        self.frame_consumer_thread = threading.Thread(target=self.frame_consumer_function, name="FrameCons")
     
     # Send the set of commands to initialize the LCD display
     def initialize(self):
@@ -102,8 +100,31 @@ class Kore2Display:
         utils.print_if_debug(self.debug, "Sending second LCD configuration to controller:", list(lcd_setup_commands))
         resp = self.usb_handler.send_lcd_setup_command(lcd_setup_commands, 200, True)
         utils.print_if_debug(self.debug, list(resp))
+
+        self.frame_consumer_thread.start()
     
-    def write_buffer_to_display(self, buffer, manual_wait):
+    def frame_consumer_function(self):
+        prctl.set_name("disp_frame_q")
+        while True:
+            if self.shutdown_event.is_set():
+                return
+            
+            frame = None
+            try:
+                frame = self.frame_queue.get(timeout=0.5)
+            except Exception as e:
+                continue
+            
+            if frame is not None:
+                #start_time = timer()
+                self.write_buffer_to_display(frame)
+                #end_time = timer()
+                #print('write_buffer_to_display took', (end_time - start_time) * 1000, 'ms')
+
+    def enqueue_frame(self, frame):
+        self.frame_queue.put(frame)
+
+    def write_buffer_to_display(self, buffer, manual_wait=False):
         # Set up unchanging values in command buffers for the three commands per transaction
         setup_cmd_buf = bytearray(3)
         lcd_page_base = 0xb0 # Final page num will be computed and set programmatically
@@ -113,38 +134,64 @@ class Kore2Display:
         buffer_arr = numpy.asarray(buffer).reshape(self.display_size['height'], self.display_size['width'])
         #print("Shape:", buffer_arr.shape)
 
+        # Split the image into 32px x 8 px chunks
+        chunks = []
+        dirty_chunks = 0
         for page in range(8):
+            chunks.append([])
             for line in range(4):
-                computed_page_addr = lcd_page_base + page
-                computed_line_addr = lcd_column_high4bits_base + (line * 2)
-                #print("Cmd1_B3:", computed_page_addr, "Cmd2_b4:", computed_line_addr)
-
-                # Finalize the buffers
-                setup_cmd_buf[0] = computed_page_addr
-                setup_cmd_buf[2] = computed_line_addr
-
                 # Get the submatrix at the necessary index
                 start_col = line * 32
                 start_row = page * 8
+                chunk_data = buffer_arr[start_row:start_row+8,start_col:start_col+32]
+                dirty = True
+                if self.previous_frame_parts is not None:
+                    dirty = not numpy.array_equal(chunk_data, self.previous_frame_parts[page][line])
+                chunks[page].append(chunk_data)
+                if dirty:
+                    dirty_chunks += 1
+                    setup_cmd_buf[0] = lcd_page_base + page # computed page address
+                    setup_cmd_buf[2] = lcd_column_high4bits_base + (line * 2) # computed line address
+                    flattened = chunk_data.T.flatten()
+                    bit_flags_array = numpy.packbits(flattened, bitorder="little")
+                    data_cmd_buf= bytearray(bit_flags_array.tobytes())
+                    self.usb_handler.send_lcd_setup_command(setup_cmd_buf, 100, manual_wait)
+                    self.usb_handler.send_lcd_data_command(data_cmd_buf, 200, manual_wait)
+        #print("dirty_chunks:", dirty_chunks)
+        self.previous_frame_parts = chunks
 
-                assert start_row + 8 <= 64
-                assert start_col + 32 <= 128
+        # for page in range(8):
+        #     for line in range(4):
+        #         computed_page_addr = lcd_page_base + page
+        #         computed_line_addr = lcd_column_high4bits_base + (line * 2)
+        #         #print("Cmd1_B3:", computed_page_addr, "Cmd2_b4:", computed_line_addr)
 
-                # y value is a * 8
-                submatrix = buffer_arr[start_row:start_row+8,start_col:start_col+32]
-                flattened = submatrix.T.flatten()
-                #flattened = numpy.fliplr(submatrix.T).flatten()
-                #flattened = submatrix.flatten()
-                bit_flags_array = numpy.packbits(flattened, bitorder="little")
-                data_cmd_buf= bytearray(bit_flags_array.tobytes())
+        #         # Finalize the buffers
+        #         setup_cmd_buf[0] = computed_page_addr
+        #         setup_cmd_buf[2] = computed_line_addr
 
-                #if b == 3:
-                #    print(bit_flags_array)
+        #         # Get the submatrix at the necessary index
+        #         start_col = line * 32
+        #         start_row = page * 8
 
-                assert len(data_cmd_buf) == 32
+        #         assert start_row + 8 <= 64
+        #         assert start_col + 32 <= 128
 
-                self.usb_handler.send_lcd_setup_command(setup_cmd_buf, 100, manual_wait)
-                self.usb_handler.send_lcd_data_command(data_cmd_buf, 200, manual_wait)
+        #         # y value is a * 8
+        #         submatrix = buffer_arr[start_row:start_row+8,start_col:start_col+32]
+        #         flattened = submatrix.T.flatten()
+        #         #flattened = numpy.fliplr(submatrix.T).flatten()
+        #         #flattened = submatrix.flatten()
+        #         bit_flags_array = numpy.packbits(flattened, bitorder="little")
+        #         data_cmd_buf= bytearray(bit_flags_array.tobytes())
+
+        #         #if b == 3:
+        #         #    print(bit_flags_array)
+
+        #         assert len(data_cmd_buf) == 32
+
+        #         self.usb_handler.send_lcd_setup_command(setup_cmd_buf, 100, manual_wait)
+        #         self.usb_handler.send_lcd_data_command(data_cmd_buf, 200, manual_wait)
         
     def write_png_to_display(self, path, manual_wait):
         img = Image.open(path)
@@ -155,20 +202,12 @@ class Kore2Display:
         # img_1b.save('img/test.png')
 
         self.write_buffer_to_display(img_1b, manual_wait)
-    
-    def set_update_period_seconds(self, period):
-        self.update_period = period
 
-    def render_loop(self):
-        
-        while True:
-            if self.shutdown_event.is_set():
-                return
-            
-            self.frame_source.render_frame()
-            time.sleep(self.update_period)
+    def set_view_source(self, source):
+        self.frame_source = source
 
     def shutdown(self):
         self.shutdown_event.set()
-        self.render_thread.join()
+        self.frame_consumer_thread.join()
+        print("Kore2Display: joined frame_consumer_thread")
         

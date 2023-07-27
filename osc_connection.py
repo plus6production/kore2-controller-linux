@@ -2,11 +2,13 @@
 
 import queue
 from pythonosc.udp_client import SimpleUDPClient
-from pythonosc.osc_server import BlockingOSCUDPServer
+from pythonosc.osc_server import ThreadingOSCUDPServer
 from pythonosc.dispatcher import Dispatcher
 import threading
 from multiprocessing import pool
 from pubsub import pub
+import prctl
+from utils import utils
 
 class OscConnection:
     def __init__(self, recv_address='127.0.0.1', recv_port=9000, send_address='127.0.0.1', send_port=8000):
@@ -15,7 +17,7 @@ class OscConnection:
         self.recv_port = recv_port
         self.dispatcher = Dispatcher()
         # Do not provide handlers to the dispatcher yet - the consuming class will do so
-        self.osc_server = BlockingOSCUDPServer((self.recv_address, self.recv_port), self.dispatcher)
+        self.osc_server = ThreadingOSCUDPServer((self.recv_address, self.recv_port), self.dispatcher)
 
         # Set up OSC client, but don't start it
         self.send_address = send_address
@@ -39,6 +41,7 @@ class OscConnection:
 
     # Simple thread to read the input queue and send the message
     def osc_sender_thread(self):
+        prctl.set_name("osc_sender")
         #print('osc_sender_thread start')
         osc_client = SimpleUDPClient(self.send_address, self.send_port)
         while True:
@@ -64,6 +67,7 @@ class OscConnection:
         #print('osc_sender_thread end')
 
     def osc_receiver_thread(self):
+        prctl.set_name("osc_receiver")
         # We've given the server a thread to do its work,
         # so just let it do its thing.  To shut it down,
         # we can call its close() method from another thread.
@@ -91,7 +95,8 @@ class OscConnection:
         addr_list= address.split('/')[1:]  # split leaves an empty string in index zero because of the leading slash      
         topic = 'daw' + '.' + direction
         for part in addr_list:
-            topic += '.' + part
+            if part != '':
+                topic += '.' + part
 
         return topic
 
@@ -101,7 +106,8 @@ class OscConnection:
         #print('convert_and_send_received_sub')
         #print(arg1)
         #print(arg2)
-        address = self.convert_topic_to_osc_address(arg1)
+        cleaned = utils.restore_invalid_characters(arg1)
+        address = self.convert_topic_to_osc_address(cleaned)
         #print(address)
         self.send_message(address, arg2)
 
@@ -121,5 +127,7 @@ class OscConnection:
 
     def disconnect(self):
         self.shutdown_event.set()
-        self.osc_server.server_close()
+        self.osc_server.shutdown()
+        self.thread_pool.close()
+        print("OscConnection: closed thread pool")
         

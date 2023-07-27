@@ -1,0 +1,426 @@
+{
+    "name": "Mixer",
+    "groups": [
+        {
+            "name": "volume",
+            "mappings": {
+                "daw.from.track.1.volume": {
+                    "src": "daw.from.track.1.volume",
+                    "dest": [
+                        "controller.output.led.touch.1",
+                        "controller.context.mixer.track.1.volume"
+                    ],
+                    "min": 0,
+                    "max": 1024
+                },
+                "daw.from.track.2.volume": {
+                    "src": "daw.from.track.2.volume",
+                    "dest": [
+                        "controller.output.led.touch.2",
+                        "controller.context.mixer.track.2.volume"
+                    ],
+                    "min": 0,
+                    "max": 1024
+                },
+                "daw.from.track.3.volume": {
+                    "src": "daw.from.track.3.volume",
+                    "dest": [
+                        "controller.output.led.touch.3",
+                        "controller.context.mixer.track.3.volume"
+                    ],
+                    "min": 0,
+                    "max": 1024
+                },
+                "daw.from.track.4.volume": {
+                    "src": "daw.from.track.4.volume",
+                    "dest": [
+                        "controller.output.led.touch.4",
+                        "controller.context.mixer.track.4.volume"
+                    ],
+                    "min": 0,
+                    "max": 1024
+                },
+                "daw.from.track.5.volume": {
+                    "src": "daw.from.track.5.volume",
+                    "dest": [
+                        "controller.output.led.touch.5",
+                        "controller.context.mixer.track.5.volume"
+                    ],
+                    "min": 0,
+                    "max": 1024
+                },
+                "daw.from.track.6.volume": {
+                    "src": "daw.from.track.6.volume",
+                    "dest": [
+                        "controller.output.led.touch.6",
+                        "controller.context.mixer.track.6.volume"
+                    ],
+                    "min": 0,
+                    "max": 1024
+                },
+                "daw.from.track.7.volume": {
+                    "src": "daw.from.track.7.volume",
+                    "dest": [
+                        "controller.output.led.touch.7",
+                        "controller.context.mixer.track.7.volume"
+                    ],
+                    "min": 0,
+                    "max": 1024
+                },
+                "daw.from.track.8.volume": {
+                    "src": "daw.from.track.8.volume",
+                    "dest": [
+                        "controller.output.led.touch.8",
+                        "controller.context.mixer.track.8.volume"
+                    ],
+                    "min": 0,
+                    "max": 1024
+                },
+                "controller.input.encoder.1": {
+                    "src": "controller.input.encoder.1",
+                    "dest": [
+                        "daw.to.track.1.volume"
+                    ],
+                    "min": 0,
+                    "max": 1024
+                },
+                "controller.input.encoder.2": {
+                    "src": "controller.input.encoder.2",
+                    "dest": [
+                        "daw.to.track.2.volume"
+                    ],
+                    "min": 0,
+                    "max": 1024
+                },
+                "controller.input.encoder.3": {
+                    "src": "controller.input.encoder.3",
+                    "dest": [
+                        "daw.to.track.3.volume"
+                    ],
+                    "min": 0,
+                    "max": 1024
+                },
+                "controller.input.encoder.4": {
+                    "src": "controller.input.encoder.4",
+                    "dest": [
+                        "daw.to.track.4.volume"
+                    ],
+                    "min": 0,
+                    "max": 1024
+                },
+                "controller.input.encoder.5": {
+                    "src": "controller.input.encoder.5",
+                    "dest": [
+                        "daw.to.track.5.volume"
+                    ],
+                    "min": 0,
+                    "max": 1024
+                },
+                "controller.input.encoder.6": {
+                    "src": "controller.input.encoder.6",
+                    "dest": [
+                        "daw.to.track.6.volume"
+                    ],
+                    "min": 0,
+                    "max": 1024
+                },
+                "controller.input.encoder.7": {
+                    "src": "controller.input.encoder.7",
+                    "dest": [
+                        "daw.to.track.7.volume"
+                    ],
+                    "min": 0,
+                    "max": 1024
+                },
+                "controller.input.encoder.8": {
+                    "src": "controller.input.encoder.8",
+                    "dest": [
+                        "daw.to.track.8.volume"
+                    ],
+                    "min": 0,
+                    "max": 1024
+                }
+            }
+        },
+        {
+            "name": "vu",
+            "mappings": {
+                "daw.from.track.1.vu": {
+                    "src": "daw.from.track.1.vu",
+                    "dest": [
+                        "controller.context.mixer.track.1.vu"
+                    ],
+                    "min": 0,
+                    "max": 1024
+                },
+                "daw.from.track.2.vu": {
+                    "src": "daw.from.track.2.vu",
+                    "dest": [
+                        "controller.context.mixer.track.2.vu"
+                    ],
+                    "min": 0,
+                    "max": 1024
+                },
+                "daw.from.track.3.vu": {
+                    "src": "daw.from.track.3.vu",
+                    "dest": [
+                        "controller.context.mixer.track.3.vu"
+                    ],
+                    "min": 0,
+                    "max": 1024
+                },
+                "daw.from.track.4.vu": {
+                    "src": "daw.from.track.4.vu",
+                    "dest": [
+                        "controller.context.mixer.track.4.vu"
+                    ],
+                    "min": 0,
+                    "max": 1024
+                },
+                "daw.from.track.5.vu": {
+                    "src": "daw.from.track.5.vu",
+                    "dest": [
+                        "controller.context.mixer.track.5.vu"
+                    ],
+                    "min": 0,
+                    "max": 1024
+                },
+                "daw.from.track.6.vu": {
+                    "src": "daw.from.track.6.vu",
+                    "dest": [
+                        "controller.context.mixer.track.6.vu"
+                    ],
+                    "min": 0,
+                    "max": 1024
+                },
+                "daw.from.track.7.vu": {
+                    "src": "daw.from.track.7.vu",
+                    "dest": [
+                        "controller.context.mixer.track.7.vu"
+                    ],
+                    "min": 0,
+                    "max": 1024
+                },
+                "daw.from.track.8.vu": {
+                    "src": "daw.from.track.8.vu",
+                    "dest": [
+                        "controller.context.mixer.track.8.vu"
+                    ],
+                    "min": 0,
+                    "max": 1024
+                }
+            }
+        },
+        {
+            "name": "recarm",
+            "mappings": {
+                "daw.from.track.1.recarm": {
+                    "src": "daw.from.track.1.recarm",
+                    "dest": [
+                        "controller.context.mixer.track.1.recarm",
+                        "controller.output.led.btn.1"
+                    ],
+                    "min": 0,
+                    "max": 1
+                },
+                "daw.from.track.2.recarm": {
+                    "src": "daw.from.track.2.recarm",
+                    "dest": [
+                        "controller.context.mixer.track.2.recarm",
+                        "controller.output.led.btn.2"
+                    ],
+                    "min": 0,
+                    "max": 1
+                },
+                "daw.from.track.3.recarm": {
+                    "src": "daw.from.track.3.recarm",
+                    "dest": [
+                        "controller.context.mixer.track.3.recarm",
+                        "controller.output.led.btn.3"
+                    ],
+                    "min": 0,
+                    "max": 1
+                },
+                "daw.from.track.4.recarm": {
+                    "src": "daw.from.track.4.recarm",
+                    "dest": [
+                        "controller.context.mixer.track.4.recarm",
+                        "controller.output.led.btn.4"
+                    ],
+                    "min": 0,
+                    "max": 1
+                },
+                "daw.from.track.5.recarm": {
+                    "src": "daw.from.track.5.recarm",
+                    "dest": [
+                        "controller.context.mixer.track.5.recarm",
+                        "controller.output.led.btn.5"
+                    ],
+                    "min": 0,
+                    "max": 1
+                },
+                "daw.from.track.6.recarm": {
+                    "src": "daw.from.track.6.recarm",
+                    "dest": [
+                        "controller.context.mixer.track.6.recarm",
+                        "controller.output.led.btn.6"
+                    ],
+                    "min": 0,
+                    "max": 1
+                },
+                "daw.from.track.7.recarm": {
+                    "src": "daw.from.track.7.recarm",
+                    "dest": [
+                        "controller.context.mixer.track.7.recarm",
+                        "controller.output.led.btn.7"
+                    ],
+                    "min": 0,
+                    "max": 1
+                },
+                "daw.from.track.8.recarm": {
+                    "src": "daw.from.track.8.recarm",
+                    "dest": [
+                        "controller.context.mixer.track.8.recarm",
+                        "controller.output.led.btn.8"
+                    ],
+                    "min": 0,
+                    "max": 1
+                },
+                "controller.input.button.btn.1": {
+                    "src": "controller.input.button.btn.1",
+                    "dest": [
+                        "daw.to.track.1.recarm"
+                    ],
+                    "min": 0,
+                    "max": 1
+                },
+                "controller.input.button.btn.2": {
+                    "src": "controller.input.button.btn.2",
+                    "dest": [
+                        "daw.to.track.2.recarm"
+                    ],
+                    "min": 0,
+                    "max": 1
+                },
+                "controller.input.button.btn.3": {
+                    "src": "controller.input.button.btn.3",
+                    "dest": [
+                        "daw.to.track.3.recarm"
+                    ],
+                    "min": 0,
+                    "max": 1
+                },
+                "controller.input.button.btn.4": {
+                    "src": "controller.input.button.btn.4",
+                    "dest": [
+                        "daw.to.track.4.recarm"
+                    ],
+                    "min": 0,
+                    "max": 1
+                },
+                "controller.input.button.btn.5": {
+                    "src": "controller.input.button.btn.5",
+                    "dest": [
+                        "daw.to.track.5.recarm"
+                    ],
+                    "min": 0,
+                    "max": 1
+                },
+                "controller.input.button.btn.6": {
+                    "src": "controller.input.button.btn.6",
+                    "dest": [
+                        "daw.to.track.6.recarm"
+                    ],
+                    "min": 0,
+                    "max": 1
+                },
+                "controller.input.button.btn.7": {
+                    "src": "controller.input.button.btn.7",
+                    "dest": [
+                        "daw.to.track.7.recarm"
+                    ],
+                    "min": 0,
+                    "max": 1
+                },
+                "controller.input.button.btn.8": {
+                    "src": "controller.input.button.btn.8",
+                    "dest": [
+                        "daw.to.track.8.recarm"
+                    ],
+                    "min": 0,
+                    "max": 1
+                }
+            }
+        },
+        {
+            "name": "navigation",
+            "mappings": {
+                "controller.input.button.left": {
+                    "src": "controller.input.button.left",
+                    "dest": [
+                        "daw.to.track.bank.page.-"
+                    ]
+                },
+                "controller.input.button.right": {
+                    "src": "controller.input.button.right",
+                    "dest": [
+                        "daw.to.track.bank.page.+"
+                    ]
+                }
+            }
+        },
+        {
+            "name": "labels",
+            "mappings": {
+                "daw.from.track.1.name": {
+                    "src": "daw.from.track.1.name",
+                    "dest": [
+                        "controller.context.mixer.track.1.name"
+                    ]
+                },
+                "daw.from.track.2.name": {
+                    "src": "daw.from.track.2.name",
+                    "dest": [
+                        "controller.context.mixer.track.2.name"
+                    ]
+                },
+                "daw.from.track.3.name": {
+                    "src": "daw.from.track.3.name",
+                    "dest": [
+                        "controller.context.mixer.track.3.name"
+                    ]
+                },
+                "daw.from.track.4.name": {
+                    "src": "daw.from.track.4.name",
+                    "dest": [
+                        "controller.context.mixer.track.4.name"
+                    ]
+                },
+                "daw.from.track.5.name": {
+                    "src": "daw.from.track.5.name",
+                    "dest": [
+                        "controller.context.mixer.track.5.name"
+                    ]
+                },
+                "daw.from.track.6.name": {
+                    "src": "daw.from.track.6.name",
+                    "dest": [
+                        "controller.context.mixer.track.6.name"
+                    ]
+                },
+                "daw.from.track.7.name": {
+                    "src": "daw.from.track.7.name",
+                    "dest": [
+                        "controller.context.mixer.track.7.name"
+                    ]
+                },
+                "daw.from.track.8.name": {
+                    "src": "daw.from.track.8.name",
+                    "dest": [
+                        "controller.context.mixer.track.8.name"
+                    ]
+                }
+            }
+        }
+    ]
+}

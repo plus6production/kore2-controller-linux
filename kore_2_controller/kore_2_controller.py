@@ -2,7 +2,7 @@ from kore_2_controller.kore_2_usb import Kore2USB
 from kore_2_controller.kore_2_display import Kore2Display
 from kore_2_controller.kore_2_leds import Kore2Leds
 from kore_2_controller.kore_2_inputs import Kore2Inputs
-from models.mixer import MixerModel
+from kore_2_controller.contexts.mixer import MixerContext
 from pubsub import pub
 from utils import utils
 
@@ -27,13 +27,12 @@ class Kore2Controller:
         # Turn on display LED
         self.leds.set_single_led('lcd', 40)
 
-        self.listeners.add(pub.subscribe(self.handle_track_event, 'daw.from.track'))
-        self.listeners.add(pub.subscribe(self.handle_button_event, 'controller.input.button'))
-        self.listeners.add(pub.subscribe(self.handle_encoder_event, 'controller.input.encoder'))
-
-        self.current_context = MixerModel()
+        self.current_context = MixerContext(self.display.enqueue_frame, tick_rate=0.2)
+        self.current_context.activate_context()
 
     def shutdown(self):
+        self.current_context.deactivate_context()
+        self.display.shutdown()
         self.usb_handler.close()
 
     def default_button_callback(self, button_name):
@@ -45,30 +44,3 @@ class Kore2Controller:
     def setup_callbacks(self):
         self.usb_handler.set_button_opcode_callback(self.input.handle_read_buttons)
         self.usb_handler.set_encoder_opcode_callback(self.input.handle_read_encoders)
-
-    def handle_daw_from_sub(self, arg1, arg2):
-        # arg1 is the pubsub topic
-        # arg2 is the actual args
-        addr_list = split_topic_to_list(arg1)
-
-    def handle_track_event(self, arg1, arg2):
-        #print("Kore2Controller: handle_track_event", arg1, arg2)
-        if self.current_context is not None:
-            if len(arg2) > 0:
-                #print("Kore2Controller: handle_button_event PRESS")
-                if arg1 in self.current_context.daw_to_controller_mapping:
-                    #print("sending event to topic", self.current_context.daw_to_controller_mapping[arg1])
-                    pub.sendMessage(self.current_context.daw_to_controller_mapping[arg1], arg1=self.current_context.daw_to_controller_mapping[arg1], arg2=arg2)
-    
-    def handle_button_event(self, arg1, arg2):
-        if self.current_context is not None:
-            if len(arg2) > 0 and arg2[0] == True:
-                #print("Kore2Controller: handle_button_event PRESS")
-                if arg1 in self.current_context.input_to_daw_mapping:
-                    #print("sending event to topic", self.current_context.input_to_daw_mapping[arg1])
-                    pub.sendMessage(self.current_context.input_to_daw_mapping[arg1], arg1=self.current_context.input_to_daw_mapping[arg1], arg2=[])
-    
-    def handle_encoder_event(self, arg1, arg2):
-        if self.current_context is not None:
-            if arg1 in self.current_context.input_to_daw_mapping:
-                pub.sendMessage(self.current_context.input_to_daw_mapping[arg1], arg1=self.current_context.input_to_daw_mapping[arg1], arg2=arg2)
