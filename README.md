@@ -4,7 +4,7 @@ This program takes control of the obsolete Kore 2 Controller from Native Instrum
 
 ## Software-controllable hardware
 
-Most Native Instruments hardware has at least partial control of its functionality managed by the Native Instruments services/daemons on Windows/Mac.  This means that usually, things like button presses, encoders, scrub wheel, LED state, and the display contents are not actually handled by the device's firmware, but are instead handled by software.  This, of course, opens up some interesting possibilities.
+Most Native Instruments hardware has at least partial control of its functionality managed by the Native Instruments services/daemons on Windows/Mac.  This means that usually, things like button presses, encoders, scrub wheel, LED state, and the display contents are not actually handled by the device's firmware, but are instead handled by software.  In the absense of Native Instruments' software, the controller has limited to no functionality.  But, if we can figure out how to properly talk to the device, this opens up some interesting possibilities.
 
 ## Existing Linux functionality
 
@@ -36,3 +36,4 @@ This is very much a work in progress, and this TODO list is for me:
         - Old NI USB protocol
         - EZ-USB info
         - LCD screen and controller info
+        - Sine-cosine encoder algorithm
