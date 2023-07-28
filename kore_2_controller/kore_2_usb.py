@@ -413,11 +413,22 @@ class Kore2USB:
 
         resp = self.send_bulk_command_buffer(buf, timeout, do_recv, 1)
         return resp
+
+    def send_midi_command(self, data, timeout, do_recv=False):
+        buf = bytearray(1)
+        buf[0] = CMD_MIDI_WRITE
+        buf.extend(data)
+
+        if not self.handshake_complete_event.is_set():
+            do_recv = True
+
+        resp = self.send_bulk_command_buffer(buf, timeout, do_recv, 1)
+        return resp
     
     def handle_usb_message(self, data):
         opcode = data[0]
         if opcode in self.opcode_map:
-            self.opcode_map[opcode](data[1:])
+            self.opcode_map[opcode](data[1:])               
         else:
             utils.print_to_file(list(data))
 
@@ -426,6 +437,9 @@ class Kore2USB:
 
     def set_encoder_opcode_callback(self, handler_func):
         self.opcode_map[2] = handler_func
+
+    def set_midi_read_callback(self, handler_func):
+        self.opcode_map[6] = handler_func
 
     # Handle opcode 0x1 from controller
     def handle_device_spec(self, data):

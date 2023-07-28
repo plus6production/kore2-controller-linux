@@ -3,3 +3,8 @@ pillow
 python-osc
 numpy
 tkvue
+pypubsub
+python-prctl
+mido
+python-rtmidi
+
