@@ -51,7 +51,7 @@ class MixerContext:
             for mapping in group['mappings']:
                 # PyPubSub has problems with certain characters that are in the Bitwig OSC def, so replace them
                 cleaned = utils.replace_invalid_characters(mapping)
-                self.listeners.add(pub.subscribe(self.dispatch_mapped_event, mapping))
+                self.listeners.add(pub.subscribe(self.dispatch_mapped_event, cleaned))
 
     def unregister_context_mappings(self):
         # TODO: need to verify that these get garbage collected
@@ -89,11 +89,12 @@ class MixerContext:
     
     # Routes incoming events to their destination(s) based on the mapping file
     def dispatch_mapped_event(self, arg1, arg2):
+        restored_src = utils.restore_invalid_characters(arg1)
         #print("Mixer dispatch:", arg1)
         for group in self.mappings['groups']:
-            if arg1 in group['mappings']:
-                for dest in group['mappings'][arg1]['dest']:
-                    #print("Dispatch send:", dest, arg2)
+            if restored_src in group['mappings']:
+                for dest in group['mappings'][restored_src]['dest']:
+                    #print("Mixer: Dispatch send:", dest, arg2)
                     cleaned = utils.replace_invalid_characters(dest)
                     pub.sendMessage(cleaned, arg1=cleaned, arg2=arg2)
 

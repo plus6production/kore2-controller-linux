@@ -370,6 +370,66 @@
             }
         },
         {
+            "name": "transport",
+            "mappings": {
+                "controller.input.scrub.+": {
+                    "src": "controller.input.scrub.+",
+                    "dest": [
+                        "daw.to.position.+"
+                    ]
+                },
+                "controller.input.scrub.++": {
+                    "src": "controller.input.scrub.++",
+                    "dest": [
+                        "daw.to.position.++"
+                    ]
+                },
+                "controller.input.scrub.-": {
+                    "src": "controller.input.scrub.--",
+                    "dest": [
+                        "daw.to.position.-"
+                    ]
+                },
+                "controller.input.scrub.--": {
+                    "src": "controller.input.scrub.--",
+                    "dest": [
+                        "daw.to.position.--"
+                    ]
+                },
+                "controller.input.button.stop": {
+                    "src": "controller.input.button.stop",
+                    "dest": [
+                        "daw.to.stop"
+                    ]
+                },
+                "controller.input.button.play": {
+                    "src": "controller.input.button.play",
+                    "dest": [
+                        "daw.to.play"
+                    ]
+                },
+                "daw.from.play": {
+                    "src": "daw.from.play",
+                    "dest": [
+                        "controller.output.led.play",
+                        "controller.output.led.stop"
+                    ]
+                },
+                "controller.input.button.record": {
+                    "src": "controller.input.button.record",
+                    "dest": [
+                        "daw.to.record"
+                    ]
+                },
+                "daw.from.record": {
+                    "src": "daw.from.record",
+                    "dest": [
+                        "controller.output.led.record"
+                    ]
+                }
+            }
+        },
+        {
             "name": "labels",
             "mappings": {
                 "daw.from.track.1.name": {

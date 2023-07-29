@@ -102,6 +102,10 @@ class Kore2Inputs:
             { '_packet_indices' : [4, 6],   'value' : 0, '_scaled' : 0, 'min' : 0, 'max' : 1023, '_offset' : 0, '_raw_ab' : [0, 0], '_line_count' : 0, '_phase' : 0, '_course_radians' : 0, '_fine_radians' : 0 },
         ]
 
+        self.scrub_wheel_packet_index = 4
+        self.scrub_rollover_threshold = 100
+        self.scrub_wheel = { 'value' : 0, 'mode' : 'incremental' }
+
     # TODO: This means that no button releases are published
     # It just behaves as a toggle to whatever it's sending to
     # TODO: could have a method to update the mode of buttons
@@ -139,8 +143,43 @@ class Kore2Inputs:
             self.buttons[button_name]['state'] = not self.buttons[button_name]['state']
             self.publish_button_event(button_name, self.buttons[button_name]['state'])
 
-    def scrub_callback(self, scrub_name, value):
-        print(scrub_name, value)
+    def update_scrub_wheel_state(self, value):
+        # TODO: handle modes other than incremental?
+        difference = value - self.scrub_wheel['value']
+        self.scrub_wheel['value'] = value
+
+        if difference == 0:
+            # No need to publish
+            return
+        
+        if abs(difference) > self.scrub_rollover_threshold:
+            # Scrub wheel crossed zero
+            difference -= numpy.sign(difference) * 256
+        
+        # The controller sends us back data where CCW motion results in increasing values
+        # so we invert the final output here since most knobs increase clockwise
+        self.publish_scrub_event(-difference)
+        
+    def publish_scrub_event(self, value):       
+        topic = 'controller.input.scrub.'
+        if value > 1:
+            topic += '++'
+        elif value == 1:
+            topic += '+'
+        elif value == -1:
+            topic += '-'
+        elif value < -1:
+            topic += '--'
+        else:
+            # Shouldn't get here,
+            # but make sure we don't publish
+            # for no change
+            return
+
+        # In most cases, scrub wheel is used for incremental values
+        # TODO: Handle the unusual cases
+        cleaned = utils.replace_invalid_characters(topic)
+        pub.sendMessage(cleaned, arg1=cleaned, arg2=[])
 
     def parse_io_buttons_state(self, data):
         # Collect all the pressed buttons into one array
@@ -160,7 +199,7 @@ class Kore2Inputs:
     # Handle opcode 0x4 data from Kore2Usb
     def handle_read_buttons(self, data):
         self.parse_io_buttons_state(list(data))
-        # TODO: scrub wheel
+        self.update_scrub_wheel_state(data[self.scrub_wheel_packet_index])
 
     def calculate_interpolated_encoder_value(self, encoder, new_raw_ab):
         line_count = encoder['_line_count']

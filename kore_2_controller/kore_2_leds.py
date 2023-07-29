@@ -43,6 +43,7 @@ class Kore2Leds:
         self.debug = debug
         self.usb_handler = usb_handler
         self.MAX_LED_BRIGHTNESS = 63
+        self.LOW_GLOW_LED_BRIGHTNESS = 1
 
         self.listeners = set()
         self.listeners.add(pub.subscribe(self.handle_led_topic, 'controller.output.led'))
@@ -88,6 +89,19 @@ class Kore2Leds:
     def send_controller_led_state(self):
         self.usb_handler.send_led_command(self.led_arr, 100)
 
+    # TODO: This is fairly specific to the Moss OSC implementation
+    # and does some things that should be mapped at a higher level
+    # (inverting values, treating 1/0 on/off values for specific LEDs, etc)
+    def convert_value_to_led_brightness(self, led_name, value):
+        val = 0
+        if 'btn' in led_name or led_name in ['play', 'record']:
+            val = self.MAX_LED_BRIGHTNESS if value == 1 else self.LOW_GLOW_LED_BRIGHTNESS
+        elif 'stop' in led_name:
+            val = self.MAX_LED_BRIGHTNESS if value == 0 else self.LOW_GLOW_LED_BRIGHTNESS
+        elif value > 0:
+            val = utils.convert_val_between_ranges(value, (0, 1024), (0, 63))
+        return val
+
     def handle_led_topic(self, arg1, arg2):
         #print("handle_led_topic:", arg1, arg2)
         split = utils.split_and_strip_topic_to_list(arg1, 3)
@@ -100,17 +114,9 @@ class Kore2Leds:
         else:
             return
 
-        val = 0
         if len(arg2) == 1:
-            val = int(arg2[0])
-            # TODO: better override for boolean inputs
-            # This should be handled in the "model" by providing a type or a min/max
-            if split[0] == 'btn' and val == 1:
-                val = 1024
-        if val > 0:
-            val = utils.convert_val_between_ranges(val, (0, 1024), (0, 63))
-     
-        self.set_single_led(led_name, val)    
+            led_val = self.convert_value_to_led_brightness(led_name, int(arg2[0]))
+            self.set_single_led(led_name, led_val)
 
     # Test function that sets a single LED while clearing the others
     def set_single_led(self, name, value):

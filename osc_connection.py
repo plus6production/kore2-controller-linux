@@ -59,7 +59,7 @@ class OscConnection:
                 # TODO: Currently not concerned with timeouts,
                 # though maybe we have a count of timeouts before we
                 # become concerned.
-                #print("ERROR: osc_sender_thread:", e)
+                # print("ERROR: osc_sender_thread:", e)
                 continue
 
             #print('OSC SEND', msg['address'], msg['args'])
@@ -108,7 +108,6 @@ class OscConnection:
         #print(arg2)
         cleaned = utils.restore_invalid_characters(arg1)
         address = self.convert_topic_to_osc_address(cleaned)
-        #print(address)
         self.send_message(address, arg2)
 
     def convert_topic_to_osc_address(self, topic):
