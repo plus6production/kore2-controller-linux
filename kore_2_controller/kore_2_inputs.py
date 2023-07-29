@@ -106,6 +106,9 @@ class Kore2Inputs:
         self.scrub_rollover_threshold = 100
         self.scrub_wheel = { 'value' : 0, 'mode' : 'incremental' }
 
+        self.listeners = set()
+        self.listeners.add(pub.subscribe(self.handle_encoder_output_event, 'controller.output.encoder'))
+
     # TODO: This means that no button releases are published
     # It just behaves as a toggle to whatever it's sending to
     # TODO: could have a method to update the mode of buttons
@@ -285,6 +288,25 @@ class Kore2Inputs:
                 # If the scaled and bounded value has changed, publish
                 if last_val != encoder['value']:
                     self.publish_encoder_event(encoder_index, encoder['value'])
+
+    # This function sets the outward-facing encoder value by updating the internal offset
+    def set_encoder_value(self, encoder_index, value):
+        encoder = self.encoders[encoder_index]
+        encoder['_offset'] = encoder['_scaled'] - value
+        encoder['value'] = encoder['_scaled'] - encoder['_offset']
+
+    def handle_encoder_output_event(self, arg1, arg2):
+        # Only accept fader input values from the DAW if the user's hand is not actively
+        # on the encoder right now
+        if arg1[-1].isnumeric() and len(arg2) == 1:
+            encoder_index = int(arg1[-1]) - 1
+
+            # TODO: This only prevents the underlying encoder offset from being
+            # updated - the display will still show the values and the value in the
+            # DAW will jump to the encoder value once it's moved (or the controller
+            # sends another periodic update)
+            if not self.buttons['touch.' + str(encoder_index + 1)]['_is_pressed']:
+                self.set_encoder_value(encoder_index, arg2[0])
 
 
 

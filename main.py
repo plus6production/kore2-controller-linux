@@ -11,12 +11,13 @@ import prctl
 
 def main():
     prctl.set_name("main")
-    controller = Kore2Controller()
-    controller.initialize()
 
     # This will start publishing osc messages as pubsub topics
     osc_connection = OscConnection()
     osc_connection.connect()
+
+    controller = Kore2Controller()
+    controller.initialize()
 
     #bitwig = BitwigOsc(controller.handle_incoming_events)
     #bitwig.connect()

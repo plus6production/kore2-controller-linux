@@ -8,6 +8,7 @@
                     "src": "daw.from.track.1.volume",
                     "dest": [
                         "controller.output.led.touch.1",
+                        "controller.output.encoder.1",
                         "controller.context.mixer.track.1.volume"
                     ],
                     "min": 0,
@@ -17,6 +18,7 @@
                     "src": "daw.from.track.2.volume",
                     "dest": [
                         "controller.output.led.touch.2",
+                        "controller.output.encoder.2",
                         "controller.context.mixer.track.2.volume"
                     ],
                     "min": 0,
@@ -26,6 +28,7 @@
                     "src": "daw.from.track.3.volume",
                     "dest": [
                         "controller.output.led.touch.3",
+                        "controller.output.encoder.3",
                         "controller.context.mixer.track.3.volume"
                     ],
                     "min": 0,
@@ -35,6 +38,7 @@
                     "src": "daw.from.track.4.volume",
                     "dest": [
                         "controller.output.led.touch.4",
+                        "controller.output.encoder.4",
                         "controller.context.mixer.track.4.volume"
                     ],
                     "min": 0,
@@ -44,6 +48,7 @@
                     "src": "daw.from.track.5.volume",
                     "dest": [
                         "controller.output.led.touch.5",
+                        "controller.output.encoder.5",
                         "controller.context.mixer.track.5.volume"
                     ],
                     "min": 0,
@@ -53,6 +58,7 @@
                     "src": "daw.from.track.6.volume",
                     "dest": [
                         "controller.output.led.touch.6",
+                        "controller.output.encoder.6",
                         "controller.context.mixer.track.6.volume"
                     ],
                     "min": 0,
@@ -62,6 +68,7 @@
                     "src": "daw.from.track.7.volume",
                     "dest": [
                         "controller.output.led.touch.7",
+                        "controller.output.encoder.7",
                         "controller.context.mixer.track.7.volume"
                     ],
                     "min": 0,
@@ -71,6 +78,7 @@
                     "src": "daw.from.track.8.volume",
                     "dest": [
                         "controller.output.led.touch.8",
+                        "controller.output.encoder.8",
                         "controller.context.mixer.track.8.volume"
                     ],
                     "min": 0,
