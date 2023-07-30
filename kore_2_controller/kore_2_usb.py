@@ -121,6 +121,12 @@ class Kore2USB:
         self.thread_pool.close()
         self.thread_pool.join()
         print("Kore2Usb: Joined thread pool")
+
+        # Reset the device
+        print("Kore2Usb: Resetting device")
+        self.send_cpu_reset()
+        self.send_cpu_release()
+
         if self.usb_handle:
             self.usb_handle.releaseInterface(0)
             self.usb_handle.close()
@@ -198,40 +204,49 @@ class Kore2USB:
             except Exception as e:
                 utils.print_if_debug(self.debug, "Polling problem:", e)
     
+    def send_cpu_reset(self):
+        packet_repr = {"transfer_type": 2, "endpoint": 0, "request_type": 64, "request": 160, "value": 58880, "length": 1, "data": [1]}
+        try:
+            utils.print_if_debug(self.debug, packet_repr['request_type'], packet_repr['request'], packet_repr['value'], 0, packet_repr['data'])
+            self.usb_handle.controlWrite(packet_repr['request_type'], packet_repr['request'], packet_repr['value'], 0, bytearray(packet_repr['data']))
+        except Exception as e:
+            utils.print_if_debug(self.debug, "Kore2Usb: ERROR setting CPU reset:", e)
+            return False
+        return True
+
+    def send_cpu_release(self):
+        packet_repr = {"transfer_type": 2, "endpoint": 0, "request_type": 64, "request": 160, "value": 58880, "length": 1, "data": [0]}
+        try:
+            utils.print_if_debug(self.debug, packet_repr['request_type'], packet_repr['request'], packet_repr['value'], 0, packet_repr['data'])
+            self.usb_handle.controlWrite(packet_repr['request_type'], packet_repr['request'], packet_repr['value'], 0, bytearray(packet_repr['data']))
+        except Exception as e:
+            utils.print_if_debug(self.debug, "Kore2Usb: ERROR setting CPU release:", e)
+            return False
+        return True
+
     def send_firmware_sequence(self):
         with open('kore_2_controller/firmware_packets.json', 'r') as fd:
             firmware_packet_sequence = json.load(fd)
 
             # CPU RESET
-            try:
-                packet_repr = firmware_packet_sequence[0]
-                utils.print_if_debug(self.debug, "Sending CPU reset")
-                utils.print_if_debug(self.debug, packet_repr['request_type'], packet_repr['request'], packet_repr['value'], 0, packet_repr['data'])
-                self.usb_handle.controlWrite(packet_repr['request_type'], packet_repr['request'], packet_repr['value'], 0, bytearray(packet_repr['data']))
-            except Exception as e:
-                utils.print_if_debug(self.debug, "ERROR first time setting CPU reset:", e)
-                return
+            utils.print_if_debug(self.debug, "Sending CPU reset to enter firmware loading mode")
+            if not self.send_cpu_reset():
+                # TODO: exceptions should propagate
+                return  # Get out before we try to send firmware - CPU isn't in reset
 
             for packet_repr in firmware_packet_sequence[1:-2]:
                 #utils.print_if_debug(self.debug, packet_repr['request_type'], packet_repr['request'], packet_repr['value'], 0, packet_repr['data'])
                 self.usb_handle.controlWrite(packet_repr['request_type'], packet_repr['request'], packet_repr['value'], 0, bytearray(packet_repr['data']))
 
-            try:
-                packet_repr = firmware_packet_sequence[-2]
-                utils.print_if_debug(self.debug, "Sending CPU reset AGAIN")
-                utils.print_if_debug(self.debug, packet_repr['request_type'], packet_repr['request'], packet_repr['value'], 0, packet_repr['data'])
-                self.usb_handle.controlWrite(packet_repr['request_type'], packet_repr['request'], packet_repr['value'], 0, bytearray(packet_repr['data']))
-            except Exception as e:
-                utils.print_if_debug(self.debug, "ERROR second time setting CPU reset:", e)
-                return
+            # CPU RESET after firmware sequence
+            # TODO: Propagate exception
+            utils.print_if_debug(self.debug, "Sending CPU reset to exit firmware loading mode")
+            self.send_cpu_reset()
 
-            try:
-                packet_repr = firmware_packet_sequence[-1]
-                utils.print_if_debug(self.debug, "Sending CPU RELEASE")
-                utils.print_if_debug(self.debug, packet_repr['request_type'], packet_repr['request'], packet_repr['value'], 0, packet_repr['data'])
-                self.usb_handle.controlWrite(packet_repr['request_type'], packet_repr['request'], packet_repr['value'], 0, bytearray(packet_repr['data']))
-            except Exception as e:
-                utils.print_if_debug(self.debug, "ERROR releasing CPU:", e)
+            # Release CPU from RESET
+            # TODO: Propagate exception
+            utils.print_if_debug(self.debug, "Sending CPU RELEASE")
+            self.send_cpu_release()
 
             # Last step before sleep is to set the configuration to 0
             try:
