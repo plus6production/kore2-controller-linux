@@ -103,7 +103,7 @@ class Kore2Leds:
         return val
 
     def handle_led_topic(self, arg1, arg2):
-        #print("handle_led_topic:", arg1, arg2)
+        # print("handle_led_topic:", arg1, arg2)
         split = utils.split_and_strip_topic_to_list(arg1, 3)
         led_name = ''
         if len(split) == 2:

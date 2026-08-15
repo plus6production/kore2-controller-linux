@@ -137,6 +137,7 @@ class Kore2USB:
     # Function to spinwait with short sleep to detect the connected Kore2 controller
     # Note: this function doesn't handle multiple Kore2 controllers connected to the machine
     def wait_for_device_handle(self):
+        print("Kore2USB: Waiting for device handle")
         while self.usb_handle is None:
             time.sleep(0.1)
             self.usb_handle = self.usb_context.openByVendorIDAndProductID(0x17cc, 0x4712)
@@ -234,8 +235,16 @@ class Kore2USB:
                 # TODO: exceptions should propagate
                 return  # Get out before we try to send firmware - CPU isn't in reset
 
+            serial_number_chars_to_write = 0
+
             for packet_repr in firmware_packet_sequence[1:-2]:
                 #utils.print_if_debug(self.debug, packet_repr['request_type'], packet_repr['request'], packet_repr['value'], 0, packet_repr['data'])
+                data = bytearray(packet_repr['data'])
+                # Looking for "SN-"
+                index = data.find(bytearray([0x53, 0x0, 0x4e, 0x0, 0x2d, 0x0]))
+                if index != -1:
+                    serial_number_chars_to_write = 8
+                    print("Found serial number placeholder in firmware packet")
                 self.usb_handle.controlWrite(packet_repr['request_type'], packet_repr['request'], packet_repr['value'], 0, bytearray(packet_repr['data']))
 
             # CPU RESET after firmware sequence
@@ -315,8 +324,12 @@ class Kore2USB:
         except usb1.USBErrorPipe:
             utils.print_if_debug(self.debug, "Got expected pipe error on second status read")
 
-        # Do zero-length bulk read?
-        # self.usb_handle.bulkRead(0x81, 0, 100)
+        # Do buffer-length bulk read to clear the endpoint buffer
+        # which is expected to return a USBErrorOverflow exception
+        try:
+            self.usb_handle.bulkRead(0x81, 512, 100)
+        except (usb1.USBErrorTimeout):
+            utils.print_if_debug(self.debug, "Got expected timeout error on zero-length bulk read")
 
         # Initial device info read
         fw_ver = self.send_get_device_info(True)
@@ -358,6 +371,7 @@ class Kore2USB:
             bytes_sent = self.usb_handle.bulkWrite(endpoint, data, timeout)
         except Exception as e:
             print("ERROR sending command: ", e)
+            print("Errored command:", list(data))
 
         #print("Sent", bytes_sent, "bytes to controller")
         return bytes_sent
@@ -367,7 +381,9 @@ class Kore2USB:
         self.queue_bulk_send(command_buf)
         # Wait for reply
         if (do_recv):
-            resp = self.try_read_usb_bulk(endpoints['bulk_in'], recv_len, timeout)       
+            resp = self.try_read_usb_bulk(endpoints['bulk_in'], recv_len, timeout)
+            if len(resp) == 0:
+                print("Kore2USB: recv error in response to command ", list(command_buf))
         return resp
 
     # Send opcode 1 and receive the response, which is a list of
@@ -382,7 +398,11 @@ class Kore2USB:
         resp = self.send_bulk_command_buffer(data, 500, do_recv, 16)
         if resp is not None:
             info_list = list(resp)
-            return info_list[1]
+            print("Kore2USB: Received device info:", info_list)
+            if len(info_list) > 1:
+                return info_list[1]
+            else:
+                print("Kore2USB: ERROR - received device info response is too short")
         
         # TODO: better handling of not getting firmware version
         return 0

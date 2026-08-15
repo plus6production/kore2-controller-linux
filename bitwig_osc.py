@@ -58,7 +58,7 @@ from pubsub import pub
 # Simplest proof of concept would be to get/set mute state for now and ignore everything else
 # This class exists to convert OSC input to pub/sub events and convert pub/sub events to osc output
 class BitwigOsc:
-    def __init__(self, event_callback, recv_address='127.0.0.1', recv_port=9000, send_address='127.0.0.1', send_port=8000):
+    def __init__(self, recv_address='127.0.0.1', recv_port=9000, send_address='127.0.0.1', send_port=8000):
 
         self.osc_connection = OscConnection(recv_address, recv_port, send_address, send_port)
 
@@ -70,9 +70,6 @@ class BitwigOsc:
 
         self.osc_mapping_file = open('bitwig_osc.json', 'r')
         self.osc_mappings = json.load(self.osc_mapping_file)
-
-        # Consumer will override this
-        self.event_callback = event_callback
 
         # 2 threads:
         # 1. receive data from the OSC connection and pass it to consumer,
@@ -170,7 +167,7 @@ class BitwigOsc:
 
     def disconnect(self):
         self.shutdown_event.set()
-        
+        self.osc_connection.disconnect()
         # TODO: do we need to somehow signal any consumer/producer classes
         # to stop producing?
         

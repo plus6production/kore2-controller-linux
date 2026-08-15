@@ -31,20 +31,24 @@ class MixerContext:
         # Open the mappings file and load the mappings
         self.mappings_file = open(self.mappings_path, 'r')
         self.mappings = json.load(self.mappings_file)
+        self.mappings_file.close()
         self.subscribe_to_mixer_topic()
         self.register_context_mappings()
+
+        # force first render
+        self.state_dirty = True
+        self.render_thread.start()
 
         # Force Bitwig to send out a data blast
         # to set our initial state
         pub.sendMessage('daw.to.refresh', arg1='daw.to.refresh', arg2=[])
-        self.render_thread.start()
+        
 
     def deactivate_context(self):
         self.shutdown_event.set()
         self.render_thread.join()
         print("MixerContext: Joined render thread")
         self.unregister_context_mappings()
-        self.mappings_file.close()
 
     def register_context_mappings(self):
         for group in self.mappings['groups']:
@@ -67,7 +71,7 @@ class MixerContext:
     def set_track_state(self, path_list, val, is_toggle):
         self.state_lock.acquire()
         if is_toggle:
-            self.state[path_list[0]][int(path_list[1]) - 1][path_list[2]] = not self.state[path_list[0]][int(path_list[1])][path_list[2]]
+            self.state[path_list[0]][int(path_list[1]) - 1][path_list[2]] = not self.state[path_list[0]][int(path_list[1]) - 1][path_list[2]]
         else:
             self.state[path_list[0]][int(path_list[1]) - 1][path_list[2]] = val
         
@@ -80,12 +84,9 @@ class MixerContext:
         if addr_list[0] != 'track' or len(addr_list) != 3 or not addr_list[1].isnumeric():
             return
         
-        is_toggle = False
-        if len(arg2) == 0:
-            # Command is toggling a value
-            is_toggle = True
+        is_toggle = (len(arg2) == 0)
 
-        self.set_track_state(addr_list, arg2[0], is_toggle)
+        self.set_track_state(addr_list, 0 if is_toggle else arg2[0], is_toggle)
     
     # Routes incoming events to their destination(s) based on the mapping file
     def dispatch_mapped_event(self, arg1, arg2):
